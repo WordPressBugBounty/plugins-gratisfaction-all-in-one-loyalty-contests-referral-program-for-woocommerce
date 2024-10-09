@@ -1,0 +1,62 @@
+{
+    "date_updated": null,
+    "points": {
+        "earn_point_enabled": 0,
+        "loyalty_campaign_enabled" : 0,
+        "redeem_theme_status" : 0,
+        "earn_point_theme_status": 0,
+        "earn_point_per_dollar": 100,
+        "purchase_theme_status": 0,
+        "redeem_purchase_status": 0,
+        "redeem_point_per_dollar": 100,
+        "currency": "$",
+        "minimum_order_value": 0,
+        "gr_restricted_user_roles": null,
+        "gr_roles_restrict_type": "restrict",
+        "gr_disable_non_loggedin":0,
+        "reward_points_type":"SUBTOTAL",
+        "gr_roundoff_type":"ROUND",
+        "gr_redeem_restrict_status":0,
+        "gr_redeem_min_point":0,
+        "gr_redeem_max_point":"",
+        "gr_redeem_cart_percent":"",
+        "gr_label_color":"#4bb543",
+        "gr_is_redeem_individual":0,
+        "gr_pay_exclude_products": null,
+        "gr_pay_exclude_categories": null,
+        "gr_pay_redeem_restrict_terms":""
+    },
+    "lang": {
+        "point_lable": null,
+        "points_lable": null,
+        "earn_point_per_dollar_lable": null,
+        "redeem_point_per_dollar_lable": null,
+        "redeem_point_product_per_dollar_lable": null,
+        "redeem_btn_text": null,
+        "redeemed_btn_text": null,
+        "redeemed_status_msg": null,
+        "label_redeemed_points": null,
+        "label_life_time_points": null,
+        "label_available_points": null,
+        "label_exclusion_points": null,
+        "error_more_points_required": null,
+        "label_total_points": null,
+        "no_records_found": null,
+        "gr_label_redeem_restriction_apply": null,
+        "gr_btn_redeem_confirm": null,
+        "gr_redeem_extra_point_info": null,
+        "loyalty_menu_name" : "Loyalty Rewards"
+    },
+    "reviews": {
+        "global_review_enabled": 0,
+        "global_review_points": 0,
+        "global_review_lable_enabled": 0,
+        "global_review_lable": null
+    },
+    "loyalty": {
+        "date_start": 0,
+        "date_end": 0,
+        "timezone": "America/Chicago",
+        "is_open": 0
+    }
+}
