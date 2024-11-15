@@ -3,8 +3,8 @@ Contributors: akashmalik
 Tags: Giveaways, contest, Loyalty, Halloween, Black Friday
 Donate link: https://appsmav.com
 Requires at least: 3.0.1
-Tested up to: 6.6
-Stable tag: 4.4.3
+Tested up to: 6.7
+Stable tag: 4.4.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -252,6 +252,9 @@ Contact us Anytime! For any pre-sales or product inquiries, send us an email to 
 
 
 == Changelog ==
+= 4.4.4 =
+WordPress version 6.7 release compatibility
+
 = 4.4.3 =
 WordPress version 6.6 release compatibility
 
@@ -600,5 +603,5 @@ This version have register shop feature with GR site.
 
 
 == Upgrade Notice ==
-= 4.4.3 =
-WordPress version 6.6 release compatibility
+= 4.4.4 =
+WordPress version 6.7 release compatibility
