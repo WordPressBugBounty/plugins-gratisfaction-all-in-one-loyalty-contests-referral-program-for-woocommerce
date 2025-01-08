@@ -185,7 +185,7 @@ class Grwoo_API extends WP_REST_Controller
             array(
                 'methods'               =>  'POST',
                 'callback'              =>  array($this, 'verify_rest_api_type'),
-                'permission_callback'   =>  '__return_true',
+                'permission_callback'   =>  array($this, 'check_api_permission_lite'),
                 'args'                  =>  array()
             )
         ));
@@ -221,8 +221,11 @@ class Grwoo_API extends WP_REST_Controller
     public function check_api_permission($request)
     {
         $msg = '';
-        try
-        {
+        try {
+            if (strpos($request->get_header('user_agent'), 'Appsmav') === false) {
+                throw new Exception('Error: ');
+            }
+
             if (empty($_POST['payload'])) {
                 throw new Exception('Error: ');
             }
@@ -235,25 +238,76 @@ class Grwoo_API extends WP_REST_Controller
             }
 
             return true;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             $msg = $e->getMessage();
         }
 
         return new WP_Error(
             'gr_rest_forbidden',
-            __( $msg . 'Sorry, you are not allowed! '),
-            array( 'status' => rest_authorization_required_code() )
+            __($msg . 'Sorry, you are not allowed! '),
+            array('status' => rest_authorization_required_code())
         );
     }
 
     public function check_api_permission_lite($request)
     {
-        if (strpos($request->get_header('user_agent'), 'Appsmav') === false) {
-            return false;
+        $msg = '';
+        try {
+            if (strpos($request->get_header('user_agent'), 'Appsmav') === false) {
+                throw new Exception('Error: ');
+            }
+
+            //Dont remove or change isset
+            if (!isset($_POST['id_shop']) || !isset($_POST['id_site']) || empty($_POST['payloadlite'])) {
+                throw new Exception('Error: ');
+            }
+
+            $id_shop = get_option('grconnect_shop_id', 0);
+            $post_id_shop = sanitize_text_field($_POST['id_shop']);
+
+            if ($id_shop != $post_id_shop) {
+                throw new Exception('Warning: ');
+            }
+
+            $id_site = get_option('grconnect_appid', 0);
+            $post_id_site = sanitize_text_field($_POST['id_site']);
+
+            if ($id_site != $post_id_site) {
+                throw new Exception('Warning: ');
+            }
+
+            //Payload validation
+            $params = [];
+            $params['id_site'] = $id_site;
+            $params['id_shop'] = $id_shop;
+            $params['payloadlite'] = sanitize_text_field($_POST['payloadlite']);
+
+            $urlApi = GR_Connect::$_callback_url . GR_Connect::$_api_version . 'valdiatePayload';
+            $httpObj = (new HttpRequestHandler)
+                ->setTimeout(10)
+                ->setPostData($params)
+                ->exec($urlApi);
+            $res = $httpObj->getResponse();
+
+            if (empty($res)) {
+                throw new Exception('Error: ');
+            }
+
+            $res = json_decode($res, true);
+            if (empty($res) || !empty($res['error'])) {
+                throw new Exception('Error: ');
+            }
+
+            return true;
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
         }
-        return true;
+
+        return new WP_Error(
+            'gr_rest_forbidden',
+            __($msg . 'Sorry, you are not allowed! '),
+            array('status' => rest_authorization_required_code())
+        );
     }
 
     public function getproductcategories()
@@ -292,10 +346,10 @@ class Grwoo_API extends WP_REST_Controller
         $data = array();
         try
         {
-            $email = sanitize_text_field(trim($_POST['email']));
-            $user_name = sanitize_text_field(trim($_POST['user_name']));
-            $first_name = sanitize_text_field(trim($_POST['first_name']));
-            $last_name = sanitize_text_field(trim($_POST['last_name']));
+            $email = sanitize_email(trim($_POST['email']));
+            $user_name = sanitize_text_field($_POST['user_name']);
+            $first_name = sanitize_text_field($_POST['first_name']);
+            $last_name = sanitize_text_field($_POST['last_name']);
 
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("Invalid email address");
@@ -527,7 +581,7 @@ class Grwoo_API extends WP_REST_Controller
         $data = array();
         try
         {
-            $email = sanitize_text_field($_POST['email']);
+            $email = sanitize_email($_POST['email']);
             $user = get_user_by( 'email', $email);
 
             // Get logged in user's order list
@@ -734,7 +788,7 @@ class Grwoo_API extends WP_REST_Controller
             if(empty($_POST['data']))
                 throw new Exception('No config to set');
 
-            if(empty($_POST['data']) || !is_array($_POST['data']))
+            if(!is_array($_POST['data']))
                 throw new Exception('Invalid config to set');
 
             $config         =	$_POST['data'];
@@ -1094,7 +1148,7 @@ class Grwoo_API extends WP_REST_Controller
             $coupon = new WC_Coupon($coupon_code);
             if (!empty($coupon->id))
             {
-                $validate_usage = empty($_POST['validate_usage']) ? 0 : $_POST['validate_usage'];
+                $validate_usage = empty($_POST['validate_usage']) ? 0 : sanitize_text_field($_POST['validate_usage']);
                 if(!empty($validate_usage) && (!isset($coupon->usage_count) || $coupon->usage_count != 0))
                 {
                     $data['id'] = $coupon->id;

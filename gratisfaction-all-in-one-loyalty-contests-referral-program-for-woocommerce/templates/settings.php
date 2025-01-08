@@ -6,6 +6,7 @@
     $displaySettingBlock   = ($grRegisterAr == 1) ? "block" : "none";
     $displayLoaderBlock    = ($grRegisterAr == 2) ? "block" : "none";
     $displayLoginBlock     = ($grRegisterAr == 3) ? "block" : "none";
+    $gr_nonce = wp_create_nonce('gr_nonce');
 ?>
 <input type="hidden" id="grRegisterAr" value="<?php echo $grRegisterAr?>" />
 
@@ -19,9 +20,10 @@
             <div class="ConnectBlock grBlkNonFrame" id="loaderBlock" style="min-height:220px;display:<?php echo $displayLoaderBlock?>;">
                 <form class="formGr form-horizontal" method="post" action="#" id="verifyForm" style="display:none">
                     <input type="hidden" name="action" value="check_settings" />
+                    <input type="hidden" id="security" name="security" value="<?php echo $gr_nonce; ?>" />
                     <p class="subtitle">Verify your Email</p>
                     <div class="inputBox">
-                        <input type="text" data-type="email" name="admin_email" id="admin_email" placeholder="Email" value="<?php echo get_option('grconnect_admin_email'); ?>" 
+                        <input type="text" data-type="email" name="admin_email" id="admin_email" placeholder="Email" value="<?php echo get_option('grconnect_admin_email'); ?>"
                             maxlength="250" title="Email" class="form-control" />
                         <u></u><i></i>
                     </div>
@@ -48,22 +50,23 @@
             <div class="ConnectBlock grBlkNonFrame" id="registerBlock" style="display:<?php echo $displayRegisterBlock?>;">
                 <form class="formGr form-horizontal" method="post" action="#" id="registerForm">
                     <input type="hidden" name="action" value="create_account" />
+                    <input type="hidden" name="security" value="<?php echo $gr_nonce; ?>" />
                     <?php $current_user = wp_get_current_user();?>
 
                     <p class="subtitle">Get started with <mark><b>free full-featured</b> plan</mark> No Obligations. No Commitment.</p>
-                    
+
                     <div class="inputBox">
                         <input type="text" name="grconnect_reg_firstname" title="First Name" placeholder="First Name" maxlength="100" id="grconnect_reg_firstname"
                             value="<?php echo $current_user->user_firstname; ?>" class="form-control" />
                         <u></u><i></i>
                     </div>
                     <div class="inputBox">
-                        <input type="text" name="grconnect_reg_lastname" title="Last Name" placeholder="Last Name" maxlength="100" id="grconnect_reg_lastname" 
+                        <input type="text" name="grconnect_reg_lastname" title="Last Name" placeholder="Last Name" maxlength="100" id="grconnect_reg_lastname"
                             value="<?php echo $current_user->user_lastname; ?>" class="form-control" />
                         <u></u><i></i>
                     </div>
                     <div class="inputBox">
-                        <input type="text" data-type="email" name="grconnect_reg_email_user" title="Email" placeholder="Email" id="grconnect_reg_email_user" 
+                        <input type="text" data-type="email" name="grconnect_reg_email_user" title="Email" placeholder="Email" id="grconnect_reg_email_user"
                             value="<?php echo get_option('grconnect_admin_email'); ?>" maxlength="250" class="form-control /">
                         <u></u><i></i>
                     </div>
@@ -95,14 +98,15 @@
             <div class="ConnectBlock grBlkNonFrame" id="loginBlock" style="display:<?php echo $displayLoginBlock?>;">
                 <form class="formGr form-horizontal" method="post" action="#" id="loginForm">
                     <input type="hidden" name="action" value="check_login" />
+                    <input type="hidden" name="security" value="<?php echo $gr_nonce; ?>" />
                     <p class="subtitle">Login with your Email and Password</p>
                     <div class="inputBox">
-                        <input type="text" data-type="email" title="Email" name="grconnect_login_email" id="grconnect_login_email" value="" placeholder="Email" 
+                        <input type="text" data-type="email" title="Email" name="grconnect_login_email" id="grconnect_login_email" value="" placeholder="Email"
                             maxlength="250" class="form-control" />
                         <u></u><i></i>
                     </div>
                     <div class="inputBox">
-                        <input type="password" title="Password" name="grconnect_login_pwd" id="grconnect_login_pwd" value="" placeholder="Password" 
+                        <input type="password" title="Password" name="grconnect_login_pwd" id="grconnect_login_pwd" value="" placeholder="Password"
                             maxlength="250" class="form-control" />
                         <u></u><i></i>
                     </div>
@@ -128,7 +132,7 @@
                 <figure>
                     <img src="<?php echo plugin_dir_url( __FILE__ )?>../img/gratisfaction.jpg" alt="Scratch and Win" />
                 </figure>
-                <a href="<?php echo $frame_url?>" target="_blank" class="btn btn-success btn-lg" id="gr_launch_link">
+                <a href="<?php echo esc_url($frame_url); ?>" target="_blank" class="btn btn-success btn-lg" id="gr_launch_link">
                     <span>Go to Gratisfaction admin</span>
                     <img src="<?php echo plugin_dir_url( __FILE__ )?>../img/icon-link.png" height="16" alt="Scratch and Win" />
                 </a>

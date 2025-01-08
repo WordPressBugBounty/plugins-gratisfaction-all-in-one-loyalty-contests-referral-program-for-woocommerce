@@ -1,14 +1,14 @@
 ﻿=== Gratisfaction- Loyalty, Rewards , Referral, Birthday and Giveaway Program ===
 Contributors: akashmalik
-Tags: Giveaways, contest, Loyalty, Halloween, Black Friday
+Tags: Giveaways, contest, Loyalty, Christmas, Thanksgiving
 Donate link: https://appsmav.com
 Requires at least: 3.0.1
 Tested up to: 6.7
-Stable tag: 4.4.4
+Stable tag: 4.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Loyalty + Referral + Rewards + Birthdays and Anniversaries + Giveaways + Sweepstakes. Selling on ETSY? Reward points for your Etsy sales.
+Loyalty + Referral + Rewards + Birthdays and Anniversaries + Giveaways + Contests + Competitions +  Sweepstakes. Selling on ETSY? Reward points for your Etsy sales.
 
 == Description ==
 
@@ -252,6 +252,12 @@ Contact us Anytime! For any pre-sales or product inquiries, send us an email to 
 
 
 == Changelog ==
+= 4.4.6 =
+Improvements and bug fixes
+
+= 4.4.5 =
+Improvements and bug fixes
+
 = 4.4.4 =
 WordPress version 6.7 release compatibility
 
@@ -603,5 +609,5 @@ This version have register shop feature with GR site.
 
 
 == Upgrade Notice ==
-= 4.4.4 =
-WordPress version 6.7 release compatibility
+= 4.4.6 =
+Improvements and bug fixes

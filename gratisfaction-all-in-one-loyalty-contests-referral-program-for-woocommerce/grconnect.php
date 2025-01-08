@@ -2,13 +2,13 @@
 
 /**
  * @package Gratisfaction Connect
- * @version 4.4.4
+ * @version 4.4.6
  */
 /*
   Plugin Name: Gratisfaction- Loyalty Rewards Referral Birthday and Giveaway Program
   Plugin URI: http://appsmav.com
   Description: Loyalty + Referral + Rewards + Birthdays and Anniversaries + Giveaways + Sweepstakes.
-  Version: 4.4.4
+  Version: 4.4.6
   Author: Appsmav
   Author URI: http://appsmav.com
   License: GPL2
@@ -38,7 +38,7 @@ if(!class_exists('GR_Connect'))
         const ENDPOINT = 'gr-loyalty';
         const REDEEM_COUPON = 'GRPAYPOINTS';
 
-        public static $_plugin_version  = '4.4.4';
+        public static $_plugin_version  = '4.4.6';
         public static $_callback_url = 'https://gratisfaction.appsmav.com/';
         public static $_api_version  = 'newapi/v2/';
         protected static $_api_url   = 'https://clients.appsmav.com/api_v1.php';
@@ -79,7 +79,7 @@ if(!class_exists('GR_Connect'))
                 add_action('after_switch_theme', array($this, 'activate_endpoints'));
 
                 add_action('rest_api_init', array($this, 'register_rest_routes'), 10);
-                
+
             } catch (Exception $ex) {
             }
 
@@ -126,12 +126,11 @@ if(!class_exists('GR_Connect'))
                 $coupon = strtolower($coupon->get_code());
                 $redeem_coupon = strtolower(WC()->session->get('gr_paybypoints_coupon', self::REDEEM_COUPON));
                 if($coupon === $redeem_coupon)
-                    return __('', 'gratiscation');
-                else
-                    return $message;
+                    return __('', 'gratisfaction');
             } catch (Exception $ex) {
 
             }
+			return $message;
         }
 
         public function get_discount_applied_message($message, $message_code, $coupon) {
@@ -143,14 +142,12 @@ if(!class_exists('GR_Connect'))
                 $redeem_coupon = WC()->session->get('gr_paybypoints_coupon', self::REDEEM_COUPON);
                 if ($coupon === strtolower($redeem_coupon)) {
                     if (WC_Coupon::WC_COUPON_SUCCESS === $message_code)
-                        return __(WC()->session->get('gr_redeemed_status_msg'), 'gratiscation');
-                }
-                else {
-                    return $message;
+                        return __(WC()->session->get('gr_redeemed_status_msg'), 'gratisfaction');
                 }
             } catch (Exception $ex) {
 
             }
+			return $message;
         }
 
         /**
@@ -559,7 +556,7 @@ if(!class_exists('GR_Connect'))
                     $user_email = $ordered_user->get('user_email');
 
                 //$param['user_email'] = $user_email;
-                $param['roles'] = empty($ordered_user) ? [] : $ordered_user->roles;
+                $param['roles'] = (empty($ordered_user) || !is_object($ordered_user)) ? [] : $ordered_user->roles;
 
                 if (version_compare( WC_VERSION, '3.7', '<' ))
                     $couponsArr = $order->get_used_coupons();
@@ -711,7 +708,7 @@ if(!class_exists('GR_Connect'))
                 $ordered_user = $order->get_user();
                 if(!empty($ordered_user))
                     $user_email = $ordered_user->get('user_email');
-                
+
                 $param['roles'] = empty($ordered_user) ? [] : $ordered_user->roles;
                 if (version_compare( WC_VERSION, '3.7', '<' ))
                     $couponsArr = $order->get_used_coupons();
@@ -980,7 +977,7 @@ if(!class_exists('GR_Connect'))
                     return;
 
                 // Set up the settings for this plugin
-                if(!empty($_REQUEST['action']) && $_REQUEST['action'] == 'woocommerce_delete_refund')
+                if(!empty($_REQUEST['action']) && sanitize_text_field($_REQUEST['action']) == 'woocommerce_delete_refund')
                 {
                     $refund = new WC_Order_Refund($refund_id);
                     $order = new WC_Order($refund->post->post_parent);
@@ -1358,7 +1355,7 @@ if(!class_exists('GR_Connect'))
                 $gr_sdk_version = !empty(WC()->session->get('gr_sdk_version', 0)) ? WC()->session->get('gr_sdk_version', 0): self::$_plugin_version;
 		        $gr_widget_config_version = !empty(WC()->session->get('gr_widget_config_version', 0)) ? WC()->session->get('gr_widget_config_version', 0): WC()->session->get('gr_api_sess', 0);
 
-                echo '<script>var AMGRConfig = {user : {name : "' . $cname . '", first_name : "' . $first_name . '", last_name : "' . $last_name . '", email : "' . $cemail . '", id : "' . $cid . '", country : ""' . $user_roles . $orderConfig . ',gr_applied_points: "' . WC()->session->get('gr_user_deduct_points', 0) . '",discounted_amount:"' . $discounted_amount . '",is_discount_applied:"' . $is_discount_applied . '", extra_pbp: "' . WC()->session->get('gr_user_extra_pay_points', 0) . '"}, site : {id : "' . $id_site . '", domain : "' . get_option('siteurl') . '", cart_count: "' . $cart_count . '",cart_url: "' . $cart_url . '",platform : "WP", sdk_version: "'.$gr_sdk_version.'", version : "'.$gr_widget_config_version.'"}};
+                echo '<script>var AMGRConfig = {user : {name : "' . $cname . '", first_name : "' . $first_name . '", last_name : "' . $last_name . '", email : "' . $cemail . '", id : "' . $cid . '", country : ""' . $user_roles . $orderConfig . ',gr_applied_points: "' . WC()->session->get('gr_user_deduct_points', 0) . '",discounted_amount:"' . $discounted_amount . '",is_discount_applied:"' . $is_discount_applied . '", extra_pbp: "' . WC()->session->get('gr_user_extra_pay_points', 0) . '"}, site : {id : "' . $id_site . '", domain : "' . get_option('siteurl') . '", cart_count: "' . $cart_count . '",cart_url: "' . $cart_url . '",platform : "WP", sdk_version: "'.$gr_sdk_version.'", version : "'.$gr_widget_config_version.'"}, gr_nonce : "'. wp_create_nonce('gr_nonce') .'"};
 
                 (function(d, s, id) {
                     var js, amjs = d.getElementsByTagName(s)[0];
@@ -1388,12 +1385,12 @@ if(!class_exists('GR_Connect'))
                     $order_id = $wp->query_vars['order-received'];
                 } else if(isset($_GET['view-order']) && !empty($_GET['view-order'])) {
                     //check if on view-order page and get parameter is available
-                    $order_id = $_GET['view-order'];
+                    $order_id = sanitize_text_field($_GET['view-order']);
                 } else if(isset($_GET['order-received']) && !empty($_GET['order-received'])) {
                     //check if on view order-received page and get parameter is available
-                    $order_id = $_GET['order-received'];
+                    $order_id = sanitize_text_field($_GET['order-received']);
                 } elseif (isset($_GET['key']) && !empty($_GET['key']) && version_compare( WC_VERSION, '5.9', '>=' )) {
-                    $order_id = wc_get_order_id_by_order_key( $_GET['key'] );
+                    $order_id = wc_get_order_id_by_order_key( sanitize_text_field($_GET['key']) );
                 } else {
                     $url = $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
                     $template_name = strpos($url,'/order-received/') === false ? '/view-order/' : '/order-received/';
@@ -1530,17 +1527,22 @@ if(!class_exists('GR_Connect'))
         public static function gr_woo_app_show_func($atts) {
             $content = '';
             try {
-                $id = isset($atts['id']) ? trim($atts['id']) : '';
-                $patternAlphaNum = '/^[a-zA-Z0-9_]+$/';
-                if (empty($id) || !preg_match($patternAlphaNum, $id))
-                    return '';
+                $id = isset($atts['id']) ? sanitize_text_field($atts['id']) : '';
+				$rtype = isset($atts['rtype']) ? sanitize_text_field($atts['rtype']) : '';
+				$patternAlphaNum = '/^[a-zA-Z0-9]+$/';
+				if (empty($id) || !preg_match($patternAlphaNum, $id) || strlen($id) > 10) {
+					return '';
+				}
+				if (!empty($rtype) && (!preg_match($patternAlphaNum, $rtype) || strlen($rtype) > 10)) {
+					return '';
+				}
 
-                $type = isset($atts['type']) ? trim($atts['type']) : '';
+                $type = isset($atts['type']) ? sanitize_text_field($atts['type']) : '';
                 $url = ($type == 'referral') ? 'contest/referral' : 'promo';
                 $url = self::$_callback_url . $url . '/' . $id;
 
-                if (isset($atts['rtype']) && $atts['rtype'] == 'link') {
-                    $content = '<a class="gr-widget ec-widget" href="' . $url . '" >Rewards</a>';
+                if (!empty($rtype) && $rtype == 'link') {
+                    $content = '<a class="gr-widget ec-widget" href="' . $url . '">Rewards</a>';
                 } else {
                     $content = '<div class="GREmbedContainer"><iframe data-grclass="gr_iframe_widget" class="gr_iframe_widget" vspace="0" hspace="0" width="100%" height="400px" src="' . $url . '" frameborder="0" allow="clipboard-read; clipboard-write">Rewards</iframe></div>
                     <script>
@@ -1682,6 +1684,12 @@ if(!class_exists('GR_Connect'))
         {
             try
             {
+                // Verify nonce
+                $msg = self::_checkNonce();
+                if (!empty($msg)) {
+                    throw new Exception($msg);
+                }
+
                 $email = sanitize_email( $_POST['grconnect_login_email'] );
                 if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))
                     throw new Exception("Please enter valid email");
@@ -1748,6 +1756,12 @@ if(!class_exists('GR_Connect'))
         {
             try
             {
+                // Verify nonce
+                $msg = self::_checkNonce();
+                if (!empty($msg)) {
+                    throw new Exception($msg);
+                }
+
                 $raffd = !empty($_POST['raffd']) ? sanitize_text_field($_POST['raffd']) : '';
                 $email = get_option('grconnect_admin_email');
                 if(isset($_POST['admin_email']))
@@ -1879,7 +1893,7 @@ if(!class_exists('GR_Connect'))
             catch(Exception $e)
             {
                 $res['gr_reg'] = 6;
-                $res['error']       = $e->getMessage();
+                $res['error'] = $e->getMessage();
             }
 
             die(json_encode($res));
@@ -2006,6 +2020,7 @@ if(!class_exists('GR_Connect'))
                         var gr_busy = false;
                         jQuery('body').on('click', '.gr_rewards_apply_discount', function(e) {
                             e.preventDefault();
+                            jQuery('#gr_checkout_lable_top').next('.error-msg').remove();
 
                             if(gr_busy)
                                 return false;
@@ -2013,9 +2028,18 @@ if(!class_exists('GR_Connect'))
                             gr_busy = true;
                             jQuery.post(
                                 '" . admin_url('admin-ajax.php') . "',
-                                {action:'apply_gr_discount'},
+                                {
+                                    action:'apply_gr_discount',
+                                    security: '". wp_create_nonce('apply_gr_discount') ."'
+                                },
                                 function(response){
                                     gr_busy = false;
+
+                                    if (typeof response.success != 'undefined' && response.success === false) {
+                                        var errorMessage = (typeof response.data == 'undefined') ? 'Sorry, you are not allowed!' : response.data;
+                                        jQuery('#gr_checkout_lable_top').after('<span class=\"error-msg\">'+ errorMessage +'</span>');
+                                        return false;
+                                    }
 
                                     if('".$is_checkout_page."' == '1')
                                     {
@@ -2107,6 +2131,12 @@ if(!class_exists('GR_Connect'))
                 if(empty(WC()->session) || empty(WC()->cart))
                     return;
 
+                // Verify nonce
+                $msg = self::_checkNonce('apply_gr_discount');
+                if (!empty($msg)) {
+                    wp_send_json_error($msg);
+                }
+
                 if(WC()->session->get('gr_discount_applied') != 1)
                 {
                     $redeem_coupon = WC()->session->get('gr_paybypoints_coupon', self::REDEEM_COUPON);
@@ -2123,23 +2153,28 @@ if(!class_exists('GR_Connect'))
         {
             try {
 
-            if(empty(WC()->session) || WC()->session->get('redeem_point_enabled') == 0)
-                return;
+				if(empty(WC()->session) || WC()->session->get('redeem_point_enabled') == 0)
+					return;
 
-            $redeem_point_lable = WC()->session->get('gr_redeem_point_per_dollar_lable');
-            $redeem_point_lable = WC()->session->get('gr_redeem_point_per_dollar_lable');
+                // Verify nonce
+                $msg = self::_checkNonce();
+                if (!empty($msg)) {
+                    wp_send_json_error($msg);
+                }
 
-            self::gr_calc_point_value();
+				$redeem_point_lable = WC()->session->get('gr_redeem_point_per_dollar_lable');
 
-            $discount = WC()->session->get('gr_user_max_discount', 0);
-            $points = WC()->session->get('gr_user_deduct_points', 0);
-            $redeem_point_lable = str_replace('{points}', $points, $redeem_point_lable);
-            $redeem_point_lable = str_replace('{points_value}', wc_price($discount), $redeem_point_lable);
-            $point_lable = ($points > 1) ? WC()->session->get('gr_points_lable') : WC()->session->get('gr_point_lable');
-            $redeem_point_lable = str_replace('{points_label}', $point_lable, $redeem_point_lable);
-            $res['msg'] = $redeem_point_lable;
+				self::gr_calc_point_value();
 
-            die(json_encode($res));
+				$discount = WC()->session->get('gr_user_max_discount', 0);
+				$points = WC()->session->get('gr_user_deduct_points', 0);
+				$redeem_point_lable = str_replace('{points}', $points, $redeem_point_lable);
+				$redeem_point_lable = str_replace('{points_value}', wc_price($discount), $redeem_point_lable);
+				$point_lable = ($points > 1) ? WC()->session->get('gr_points_lable') : WC()->session->get('gr_point_lable');
+				$redeem_point_lable = str_replace('{points_label}', $point_lable, $redeem_point_lable);
+				$res['msg'] = $redeem_point_lable;
+
+				die(json_encode($res));
 
             } catch (Exception $ex) {
 
@@ -2151,7 +2186,13 @@ if(!class_exists('GR_Connect'))
             try
             {
                 if (empty(WC()->session) || WC()->session->get('redeem_point_enabled') == 0)
-                return;
+                    return;
+
+                // Verify nonce
+                $msg = self::_checkNonce();
+                if (!empty($msg)) {
+                    wp_send_json_error($msg);
+                }
 
                 self::gr_calc_point_value();
 
@@ -2168,7 +2209,7 @@ if(!class_exists('GR_Connect'))
                     WC()->session->set('gr_discount_applied', 0);
                 }
                 //To update the popup in checkut page
-                if ($_POST['event_type'] == 'remove_coupon') {
+                if (sanitize_text_field($_POST['event_type']) == 'remove_coupon') {
                     $res['is_discount_applied'] = 0;
                 } else if (!empty($res['discounted_amount'])) {
                     $res['is_discount_applied'] =  WC()->session->get('gr_discount_applied', 0);
@@ -2891,7 +2932,36 @@ if(!class_exists('GR_Connect'))
 
         public function gr_ajax_create_account()
         {
+            // Verify nonce
+            $msg = self::_checkNonce();
+            if (!empty($msg)) {
+                die(json_encode(['gr_reg' => 4, 'message' => $msg]));
+            }
+
             self::callAcctRegister($_POST);
+        }
+
+        /**
+         * Check for nonce is valid
+         * @param string $nounce
+         * @param string $key
+         * @return string
+         */
+        protected static function _checkNonce($nounce = 'gr_nonce', $key = 'security')
+        {
+            try {
+                $msg = '';
+                // Verify nonce
+                $nonce_check = check_ajax_referer($nounce, $key, false);
+                if ($nonce_check == false) {
+                    // Handle invalid nonce
+                    $msg = 'Sorry, you are not allowed!';
+                }
+            } catch (Exception $e) {
+                $msg = 'Sorry, you are not allowed!';
+            }
+
+            return $msg;
         }
 
         /*
@@ -2990,7 +3060,7 @@ if(!class_exists('GR_Connect'))
                 $params["lastname"] = sanitize_text_field($p['grconnect_reg_lastname']);
                 $params["email"] = $p['grconnect_reg_email_user'];
                 $params["email_user"] = $p['grconnect_reg_email_user'];
-                $params["raffd"] = !empty($p['raffd']) ? $p['raffd'] : '';
+                $params["raffd"] = !empty($p['raffd']) ? sanitize_text_field($p['raffd']) : '';
                 $params["companyname"] = get_bloginfo('name');
                 $params["companyname"] = !empty($params["companyname"]) ? get_bloginfo('name') : 'Your Business name';
                 $params["address1"] = '***'; //Dummy
@@ -3475,6 +3545,7 @@ if(!class_exists('GR_Connect'))
             try
             {
                 $is_restricted = false;
+				$id_product = sanitize_text_field($id_product);
                 if (empty($id_product))
                     throw new Exception('Invalid product');
 
@@ -3519,6 +3590,7 @@ if(!class_exists('GR_Connect'))
         {
             try
             {
+				$comment_ID = sanitize_text_field($comment_ID);
                 if (empty($comment->comment_author_email) || self::_isActiveCampaign() === false)
                     return;
 
@@ -3623,6 +3695,7 @@ if(!class_exists('GR_Connect'))
         {
             try
             {
+				$email = sanitize_email($email);
                 if (is_user_logged_in() || !empty($email))
                 {
                     $urlApi = self::$_callback_url . self::$_api_version . 'getReferralCoupon';
@@ -3661,6 +3734,7 @@ if(!class_exists('GR_Connect'))
             try
             {
                 $description = "";
+				$coupon_code = sanitize_text_field($coupon_code);
                 $coupon = new WC_Coupon($coupon_code);
                 if ( is_callable( array( $coupon, 'get_description' ) ) ) { // WC 3.0+ compatibility
                     $description = $coupon->get_description();
@@ -3873,7 +3947,7 @@ if(!class_exists('GR_Connect'))
             { }
         }
 
-		// Get current user's order details, Both Guests and 
+		// Get current user's order details, Both Guests and
         private function _is_order_exists()
         {
 			$is_order_exists = FALSE;
@@ -3889,10 +3963,10 @@ if(!class_exists('GR_Connect'))
                         'post_status' => array('wc-pending','wc-processing', 'wc-completed','wc-on-hold'), //,wc-cancelled,wc-refunded,wc-failed
                         'numberposts' => -1
                     ) );
-					
+
 					if (count($customer_orders) > 0)  {
 						return TRUE;
-					}						
+					}
                 }
 				// Get order from billing emails in Checkout page coupon validate.
 				$billing_email = empty($_POST['billing_email']) ? '' : sanitize_email($_POST['billing_email']);
@@ -3913,10 +3987,10 @@ if(!class_exists('GR_Connect'))
             }
             catch(Exception $e)
             { }
-			
+
 			return $is_order_exists;
         }
-		
+
         public function include_files()
         {
             try

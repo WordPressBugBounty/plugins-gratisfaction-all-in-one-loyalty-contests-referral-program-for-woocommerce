@@ -117,7 +117,7 @@ class WC_Points_Rewards_Cart_Checkout {
 		}
 
 		// Get discount amount if set and store in session
-		WC()->session->set( 'wc_points_rewards_discount_amount', ( ! empty( $_POST['wc_points_rewards_apply_discount_amount'] ) ? absint( $_POST['wc_points_rewards_apply_discount_amount'] ) : '' ) );
+		WC()->session->set( 'wc_points_rewards_discount_amount', ( ! empty( $_POST['wc_points_rewards_apply_discount_amount'] ) ? absint( sanitize_text_field($_POST['wc_points_rewards_apply_discount_amount']) ) : '' ) );
 
 		// generate and set unique discount code
 		$discount_code = WC_Points_Rewards_Discount::generate_discount_code();
@@ -144,7 +144,7 @@ class WC_Points_Rewards_Cart_Checkout {
 		}
 
 		// Get discount amount if set and store in session
-		WC()->session->set( 'wc_points_rewards_discount_amount', ( ! empty( $_POST['discount_amount'] ) ? absint( $_POST['discount_amount'] ) : '' ) );
+		WC()->session->set( 'wc_points_rewards_discount_amount', ( ! empty( $_POST['discount_amount'] ) ? absint( sanitize_text_field($_POST['discount_amount']) ) : '' ) );
 
 		// generate and set unique discount code
 		$discount_code = WC_Points_Rewards_Discount::generate_discount_code();

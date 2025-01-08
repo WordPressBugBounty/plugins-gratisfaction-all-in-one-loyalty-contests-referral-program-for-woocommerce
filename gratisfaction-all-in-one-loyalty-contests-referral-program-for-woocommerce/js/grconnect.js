@@ -23,7 +23,7 @@ function callRegister(){
 
         jQuery.post(
             ajaxurl,
-            jQuery('#registerForm').serialize()+'&raffd='+jQuery('#raffd').val(), 
+            jQuery('#registerForm').serialize()+'&raffd='+jQuery('#raffd').val(),
             function(response){
 
                 if(response.gr_reg == 0)
@@ -37,7 +37,7 @@ function callRegister(){
                 }
                 else if(response.gr_reg == 2)
                 {
-                    jQuery('.error_msg').html(response.message);                    
+                    jQuery('.error_msg').html(response.message);
                     jQuery('#registerBlock, #loaderBlock').hide();
                     jQuery('.alertBox').show();
                     jQuery('#loginBlock').show();
@@ -73,7 +73,7 @@ function callVerify(){
     var result = jQuery.validity.end();
 
     if(result.valid)
-    {		
+    {
         jQuery('#verifyButton').val('Updating Settings..');
         jQuery('#verifyButton').attr('disabled','disabled');
 
@@ -83,7 +83,7 @@ function callVerify(){
 
         jQuery.post(
             ajaxurl,
-            jQuery('#verifyForm').serialize()+'&raffd='+jQuery('#raffd').val(), 
+            jQuery('#verifyForm').serialize()+'&raffd='+jQuery('#raffd').val(),
             function(response){
 
                 if(response.gr_reg == 1)
@@ -122,7 +122,7 @@ function callLoader(){
 
     jQuery.post(
         ajaxurl,
-        {action:'check_settings',raffd: jQuery('#raffd').val()}, 
+        {action:'check_settings',raffd: jQuery('#raffd').val(), security: jQuery('#security').val()},
         function(response){
 
             if(response.gr_reg == 0){
@@ -178,7 +178,7 @@ function callLogin() {
 
         jQuery.post(
             ajaxurl,
-            jQuery('#loginForm').serialize()+'&raffd='+jQuery('#raffd').val(), 
+            jQuery('#loginForm').serialize()+'&raffd='+jQuery('#raffd').val(),
             function(response){
                 if(response.error == 0)
                 {
@@ -209,7 +209,7 @@ function callLogin() {
     }
 }
 
-jQuery(document).ready(function(){		
+jQuery(document).ready(function(){
 
     if(jQuery('#grRegisterAr').val()	== 2){
         callLoader();
