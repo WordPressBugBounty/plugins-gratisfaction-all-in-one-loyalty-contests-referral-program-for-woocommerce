@@ -28,7 +28,6 @@ function callRegister(){
 
                 if(response.gr_reg == 0)
                 {
-                    jQuery('#gr_launch_link').attr('href', response.frame_url);
                     setTimeout(function(){
                         jQuery('#settingBlock').show();
                         jQuery('#registerBlock, .grBlkNonFrame').hide();
@@ -97,7 +96,6 @@ function callVerify(){
                 }
                 else if(response.gr_reg == 0)
                 {
-                    jQuery('#gr_launch_link').attr('href', response.frame_url);
                     setTimeout(function(){
                         jQuery('#settingBlock').show();
                         jQuery('#loaderBlock, .grBlkNonFrame').hide();
@@ -126,7 +124,6 @@ function callLoader(){
         function(response){
 
             if(response.gr_reg == 0){
-                jQuery('#gr_launch_link').attr('href', response.frame_url);
                 setTimeout(function(){
                     jQuery('#settingBlock').show();
                     jQuery('#loaderBlock, .grBlkNonFrame').hide();
@@ -182,7 +179,6 @@ function callLogin() {
             function(response){
                 if(response.error == 0)
                 {
-                    jQuery('#gr_launch_link').attr('href', response.frame_url);
                     setTimeout(function(){
                         jQuery('#settingBlock').show();
                         jQuery('#loginBlock, .grBlkNonFrame').hide();
@@ -206,6 +202,88 @@ function callLogin() {
     }else{
         //alert('Please clear errors while input.');
         return false;
+    }
+}
+
+function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
+
+/**
+ * Handles the auto-login process to Gratisfaction admin panel
+ *
+ * Makes an AJAX request to the server, processes the response,
+ * and either redirects to Gratisfaction or displays any errors.
+ * Special handling is included for Safari browsers.
+ *
+ * @return {void}
+ */
+function callAutoLogin() {
+    // Cache jQuery selectors for better performance
+    const $launchButton = jQuery('#gr_launch_button');
+    const $launchLink = jQuery('#gr_launch_link');
+    const $errorDisplay = jQuery('#autologinErrorDisplay');
+
+    // Hide any previous error messages
+    $errorDisplay.hide();
+
+    // Update UI to show loading state
+    $launchButton.html('Loading...');
+    $launchLink.prop('disabled', true);
+
+    // Variable to hold Safari specific window
+    let newWindow = null;
+    try {
+        // Special handling for Safari browsers
+        if (isSafari()) {
+            newWindow = window.open('about:blank', '_blank');
+            if (!newWindow) {
+                throw new Error('Popup blocker detected. Please allow popups for this site.');
+            }
+        }
+
+        // Make AJAX request to server
+        jQuery.post(
+            ajaxurl,
+            jQuery('#autoLoginForm').serialize(),
+            function (response) {
+                if (response.error == 0 && response.frame_url != "") {
+                    $launchLink.removeAttr('onclick')
+                        .attr('href', response.frame_url)
+                        .attr('target', '_blank');
+
+                    // Handle browser-specific redirection
+                    if (isSafari() && newWindow) {
+                        newWindow.location.href = response.frame_url;
+                    } else {
+                        // Trigger click programmatically
+                        $launchLink[0].click();
+                    }
+                } else {
+                    const errorMessage = response.message || 'Unknown error occurred';
+                    jQuery('.error_msg').html(errorMessage);
+                    $errorDisplay.show();
+                }
+                $launchButton.html('Go to Gratisfaction admin');
+                $launchLink.prop('disabled', false);
+                setTimeout(function () {
+                    $launchLink.attr('onclick', 'callAutoLogin()');
+                    $launchLink.removeAttr('href').removeAttr('target');
+                }, 2000); // 2 seconds delay
+            }, 'json'
+        );
+    } catch (error) {
+        // Handle any runtime errors
+        jQuery('.error_msg').html(error.message || 'Unknown error occurred');
+        $errorDisplay.show();
+
+        // Reset UI state
+        $launchButton.html('Go to Gratisfaction admin');
+        $launchLink.prop('disabled', false);
+        setTimeout(function () {
+            $launchLink.attr('onclick', 'callAutoLogin()');
+            $launchLink.removeAttr('href').removeAttr('target');
+        }, 2000); // 2 seconds delay
     }
 }
 

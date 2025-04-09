@@ -1,13 +1,16 @@
-<div class="wrap">
-<h1></h1> <!-- Don't delete. This is for WP message push. -->
 <?php
-    $grRegisterAr          = get_option('grconnect_register',0);
+if (!current_user_can('manage_options'))
+    wp_die(__('You do not have sufficient permissions to access this page.'));
+
+    $grRegisterAr          = get_option('grconnect_register', 0);
     $displayRegisterBlock  = ($grRegisterAr == 0) ? "block" : "none";
     $displaySettingBlock   = ($grRegisterAr == 1) ? "block" : "none";
     $displayLoaderBlock    = ($grRegisterAr == 2) ? "block" : "none";
     $displayLoginBlock     = ($grRegisterAr == 3) ? "block" : "none";
     $gr_nonce = wp_create_nonce('gr_nonce');
 ?>
+<div class="wrap">
+<h1></h1> <!-- Don't delete. This is for WP message push. -->
 <input type="hidden" id="grRegisterAr" value="<?php echo $grRegisterAr?>" />
 
     <div class="grWrap">
@@ -130,12 +133,20 @@
             <!-- After Login Block -->
             <div class="ConnectBlock text-center" id="settingBlock" style="display:<?php echo $displaySettingBlock?>;">
                 <figure>
-                    <img src="<?php echo plugin_dir_url( __FILE__ )?>../img/gratisfaction.jpg" alt="Scratch and Win" />
+                    <img src="<?php echo plugin_dir_url( __FILE__ )?>../img/gratisfaction.jpg" alt="Gratisfaction" />
                 </figure>
-                <a href="<?php echo esc_url($frame_url); ?>" target="_blank" class="btn btn-success btn-lg" id="gr_launch_link">
-                    <span>Go to Gratisfaction admin</span>
-                    <img src="<?php echo plugin_dir_url( __FILE__ )?>../img/icon-link.png" height="16" alt="Scratch and Win" />
-                </a>
+                <form class="formGr form-horizontal" method="post" action="#" id="autoLoginForm">
+                    <input type="hidden" name="action" value="check_autologin" />
+                    <a onclick="callAutoLogin();" class="btn btn-success btn-lg" id="gr_launch_link">
+                        <span id="gr_launch_button">Go to Gratisfaction admin</span>
+                        <img src="<?php echo plugin_dir_url(__FILE__) ?>../img/icon-link.png" height="16" alt="Gratisfaction" />
+                    </a>
+                    <div id="autologinErrorDisplay" style="display:none;"><br>
+                        <div class="alertBox">
+                            <div><i></i> <span class="error_msg"></span></div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 

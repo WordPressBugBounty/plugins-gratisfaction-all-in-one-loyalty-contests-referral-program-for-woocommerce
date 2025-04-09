@@ -2,13 +2,13 @@
 
 /**
  * @package Gratisfaction Connect
- * @version 4.4.6
+ * @version 4.5.0
  */
 /*
   Plugin Name: Gratisfaction- Loyalty Rewards Referral Birthday and Giveaway Program
   Plugin URI: http://appsmav.com
   Description: Loyalty + Referral + Rewards + Birthdays and Anniversaries + Giveaways + Sweepstakes.
-  Version: 4.4.6
+  Version: 4.5.0
   Author: Appsmav
   Author URI: http://appsmav.com
   License: GPL2
@@ -38,7 +38,7 @@ if(!class_exists('GR_Connect'))
         const ENDPOINT = 'gr-loyalty';
         const REDEEM_COUPON = 'GRPAYPOINTS';
 
-        public static $_plugin_version  = '4.4.6';
+        public static $_plugin_version  = '4.5.0';
         public static $_callback_url = 'https://gratisfaction.appsmav.com/';
         public static $_api_version  = 'newapi/v2/';
         protected static $_api_url   = 'https://clients.appsmav.com/api_v1.php';
@@ -51,39 +51,82 @@ if(!class_exists('GR_Connect'))
         {
             try {
                 // register actions
-                add_action('admin_init', array(&$this, 'admin_init'));
-                add_action('admin_menu', array(&$this, 'add_menu'));
-                add_action('plugins_loaded', array(&$this, 'woohook_init'));
+                add_action('admin_init', [$this, 'admin_init']);
+                add_action('admin_menu', [$this, 'add_menu']);
+                add_action('plugins_loaded', [$this, 'woohook_init']);
 
-                register_activation_hook( __FILE__, array( $this, 'activate_endpoints' ) );
-                register_deactivation_hook( __FILE__, array( $this, 'activate_endpoints' ) );
+                register_activation_hook(__FILE__, [$this, 'activate_endpoints']);
+                register_deactivation_hook(__FILE__, [$this, 'activate_endpoints']);
 
                 // register actions for Blog Comments
-                add_action('plugins_loaded', array(&$this, 'commenthook_init'), 1);
-                add_action('admin_enqueue_scripts', array(&$this, 'gr_font_styles'));
-                add_action('parse_request', array(&$this, 'apmgr_create_discount'));
-                add_action('save_post', array(&$this,'gr_save_post'), 10, 3);
-                add_action('after_switch_theme', array($this, 'admin_init'));
-                add_filter('woocommerce_get_shop_coupon_data', array($this, 'get_coupon'), 12, 2);
-                add_filter('woocommerce_coupon_message', array($this, 'get_discount_applied_message'), 10, 3);
-                add_filter('woocommerce_cart_totals_coupon_label', array($this, 'coupon_label'));
-                add_filter('woocommerce_coupon_is_valid', array($this, 'validate_apply_coupon'));
+                add_action('plugins_loaded', [$this, 'commenthook_init'], 1);
+                add_action('admin_enqueue_scripts', [$this, 'gr_font_styles']);
+                add_action('save_post', [$this, 'gr_save_post'], 10, 3);
+                add_action('after_switch_theme', [$this, 'admin_init']);
+                add_filter('woocommerce_get_shop_coupon_data', [$this, 'get_coupon'], 12, 2);
+                add_filter('woocommerce_coupon_message', [$this, 'get_discount_applied_message'], 10, 3);
+                add_filter('woocommerce_cart_totals_coupon_label', [$this, 'coupon_label']);
+                add_filter('woocommerce_coupon_is_valid', [$this, 'validate_apply_coupon']);
 
                 // display points on a separate tab on user's account page
-                add_action('init', array($this, 'add_endpoints'));
-                add_filter('query_vars', array($this, 'add_query_vars'), 0);
+                add_action('init', [$this, 'add_endpoints']);
+                add_filter('query_vars', [$this, 'add_query_vars'], 0);
 
-                add_action('woocommerce_account_menu_items', array($this, 'add_menu_items'));
-                add_action('woocommerce_account_' . self::ENDPOINT . '_endpoint', array($this, 'gratisfaction_loyalty_activites'));
+                add_action('woocommerce_account_menu_items', [$this, 'add_menu_items']);
+                add_action('woocommerce_account_' . self::ENDPOINT . '_endpoint', [$this, 'gratisfaction_loyalty_activites']);
 
-                add_action('after_switch_theme', array($this, 'activate_endpoints'));
+                add_action('after_switch_theme', [$this, 'activate_endpoints']);
 
-                add_action('rest_api_init', array($this, 'register_rest_routes'), 10);
+                add_action('rest_api_init', [$this, 'register_rest_routes'], 10);
 
+                // Handle plugin upgrades
+                add_action('upgrader_process_complete', [$this, 'gr_handle_plugin_upgrade'], 10, 2);
             } catch (Exception $ex) {
             }
+        } // END public function __construct
 
-        }// END public function __construct
+        /**
+         * Handle plugin upgrade process to notify backend server
+         */
+        public function gr_handle_plugin_upgrade($upgrader, $options)
+        {
+            try {
+                if (isset($options['action']) && $options['action'] == 'update' && isset($options['type']) && $options['type'] == 'plugin') {
+                    // Check if our plugin was updated
+                    $plugin_path = plugin_basename(__FILE__);
+                    if (in_array($plugin_path, $options['plugins'], true)) {
+
+                        // Safely get plugin data
+                        if (!function_exists('get_plugin_data')) {
+                            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                        }
+
+                        $plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $plugin_path);
+                        $new_version = isset($plugin_data['Version']) ? $plugin_data['Version'] : ''; // Fetch new version
+                        if (!empty($new_version) && preg_match('/^\d+\.\d+\.\d+$/', $new_version)) {
+
+                            $app_id  = get_option('grconnect_appid', 0);
+                            $payload = get_option('grconnect_payload', 0);
+                            $id_shop = get_option('grconnect_shop_id', 0);
+
+                            if (!empty($app_id) && !empty($payload) && !empty($id_shop)) {
+
+                                $url = self::$_callback_url . self::$_api_version . 'pluginUpgradeStatus';
+                                $params = ['id_site' => $app_id, 'app' => 'gr', 'payload' => $payload, 'status' => 'upgrade', 'id_shop' => $id_shop, 'plugin_version' => $new_version];
+
+                                $response = self::_curlResp($params, $url);
+
+                                // Validate API response
+                                if (empty($response) || !empty($response['error'])) {
+                                    throw new Exception('API request failed: ' . ($response['message'] ?? 'Unknown error'));
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception $ex) {
+            }
+        }
 
         public function register_rest_routes()
         {
@@ -171,7 +214,7 @@ if(!class_exists('GR_Connect'))
                     if(!empty($deduct_points))
                     {
                         $point_lable = ($deduct_points > 1) ? WC()->session->get('gr_points_lable') : WC()->session->get('gr_point_lable');
-                        $deduct_points_str  =   ' ('.$deduct_points.' '.$point_lable.')';
+                        $deduct_points_str  =   ' (' . esc_html($deduct_points) . ' ' . esc_html($point_lable) . ')';
                     }
                     else
                     {
@@ -182,7 +225,7 @@ if(!class_exists('GR_Connect'))
                         WC()->session->set('gr_user_deduct_points', 0);
                     }
 
-                    return WC()->session->get('label_redeemed_points').$deduct_points_str;
+                    return esc_html(WC()->session->get('label_redeemed_points')) . $deduct_points_str;
                 }
             }
             catch(Exception $e)
@@ -335,8 +378,10 @@ if(!class_exists('GR_Connect'))
                 if(empty($email) || empty($id_site) || empty(WC()->session))
                     throw new Exception();
 
+                 $payload = get_option('grconnect_payload', 0);
+
                 $httpObj = (new HttpRequestHandler)
-                                ->setPostData(array('user_email' => $email, 'id_site' => $id_site))
+                                ->setPostData(array('user_email' => $email, 'id_site' => $id_site, 'payload' => $payload, 'plugin_version' => self::$_plugin_version))
                                 ->exec(self::$_callback_url.self::$_api_version.'getUserPoints');
                 $resp = $httpObj->getResponse();
 
@@ -521,7 +566,8 @@ if(!class_exists('GR_Connect'))
                 $id_shop = get_option('grconnect_shop_id', 0);
                 $id_site = get_option('grconnect_appid', 0);
                 $payload = get_option('grconnect_payload', 0);
-                $param = array('app' => 'gr', 'plugin_type' => 'WP', 'status' => 'deactivate', 'id_shop' => $id_shop, 'id_site' => $id_site, 'payload' => $payload);
+                $param = ['app' => 'gr', 'plugin_type' => 'WP', 'status' => 'deactivate', 'id_shop' => $id_shop, 'id_site' => $id_site, 'payload' => $payload, 'plugin_version' => self::$_plugin_version];
+
                 $url = self::$_callback_url . self::$_api_version . 'pluginStatus';
 
                 $httpObj = (new HttpRequestHandler)
@@ -677,6 +723,7 @@ if(!class_exists('GR_Connect'))
                 catch(Exception $e){ }
 
                 $param['plugin_version'] = self::$_plugin_version;
+                $param['payload'] = $grPayload;
                 $urlApi = self::$_callback_url . self::$_api_version . 'addEntry';
                 $this->callGrConnectApi($param, $urlApi);
             }
@@ -843,6 +890,7 @@ if(!class_exists('GR_Connect'))
                 catch(Exception $e){ }
 
                 $param['plugin_version'] = self::$_plugin_version;
+                $param['payload'] = $grPayload;
                 $urlApi = self::$_callback_url . self::$_api_version . 'addEntry';
                 $this->callGrConnectApi($param, $urlApi);
             }
@@ -1016,6 +1064,8 @@ if(!class_exists('GR_Connect'))
                     $param['customer_id'] = $order->get_user_id();
                     $param['order'] = 0;
                     $param['id_order'] = $refund->post->post_parent;
+                    $param['payload'] = $grPayload;
+                    $param['plugin_version'] = self::$_plugin_version;
                     $urlApi = self::$_callback_url . self::$_api_version . 'addEntry';
 
                     if(version_compare( WC_VERSION, '3.0', '<' ))
@@ -1059,11 +1109,12 @@ if(!class_exists('GR_Connect'))
                     $url     = self::$_callback_url . self::$_api_version . 'wooInstallTabDelete';
                     update_post_meta($refund_id, 'is_embed_landing_url', 0);
 
-                    $param = array(
+                    $param = [
                         'id_site' => $grAppId,
                         'payload' => $grPayload,
-                        'id'      => $refund_id
-                    );
+                        'id'      => $refund_id,
+                        'plugin_version' => self::$_plugin_version
+                    ];
 
                     $res = self::_curlResp($param, $url);
                     if (empty($res) || $res['error'] == 1) {
@@ -1186,6 +1237,7 @@ if(!class_exists('GR_Connect'))
                 $param['order_status'] = strtolower($order->get_status());
 
                 $param['plugin_version'] = self::$_plugin_version;
+                $param['payload'] = $grPayload;
                 $urlApi = self::$_callback_url . self::$_api_version . 'removeEntryNew';
                 $this->callGrConnectApi($param, $urlApi);
             }
@@ -1218,31 +1270,31 @@ if(!class_exists('GR_Connect'))
                 // Set up the settings for this plugin
                 if(class_exists('WC_Integration'))
                 {
-                    add_action('woocommerce_checkout_order_processed', array(&$this, 'send_connect_init'));
-                    //add_action('woocommerce_order_edit_status', array(&$this, 'send_connect_init'));
-                    add_action('woocommerce_order_status_changed', array(&$this, 'send_status_init'));
-                    add_action('before_delete_post', array(&$this, 'send_refund_delete_post_init'));
-                    //add_action('woocommerce_order_status_refunded', array(&$this, 'send_refund_init'));
-                    add_action('woocommerce_order_refunded', array(&$this, 'send_refund_init'));
-                    add_action('woocommerce_created_customer', array(&$this, 'send_customer_init'));
-                    add_action('profile_update', array(&$this, 'customer_profile_update'));
-                    add_action('woocommerce_single_product_summary', array(&$this, 'gr_show_single_product_lable'));
-                    add_action('woocommerce_after_add_to_cart_button', array(&$this, 'gr_show_single_product_buy_lable'));
-                    add_action('woocommerce_before_cart_totals', array(&$this, 'gr_show_redeem_points_lable'));
-                    add_action('template_redirect', array(&$this, 'gr_before_cart'));
-                    add_action('woocommerce_before_checkout_form', array(&$this, 'gr_show_redeem_points_lable'));
-                    add_action('woocommerce_cart_calculate_fees', array(&$this, 'gr_custom_discount'));
-                    add_action('wp_ajax_check_redeem_update', array(&$this, 'gr_update_lable_carts_page'));
-                    add_action('wp_ajax_gr_get_cart_details', array(&$this, 'gr_get_cart_details'));
-                    add_action('wp_ajax_apply_gr_discount', array(&$this, 'gr_custom_discount_ajax'));
+                    add_action('woocommerce_checkout_order_processed', [$this, 'send_connect_init']);
+                    //add_action('woocommerce_order_edit_status', [$this, 'send_connect_init']);
+                    add_action('woocommerce_order_status_changed', [$this, 'send_status_init']);
+                    add_action('before_delete_post', [$this, 'send_refund_delete_post_init']);
+                    //add_action('woocommerce_order_status_refunded', [$this, 'send_refund_init']);
+                    add_action('woocommerce_order_refunded', [$this, 'send_refund_init']);
+                    add_action('woocommerce_created_customer', [$this, 'send_customer_init']);
+                    add_action('profile_update', [$this, 'customer_profile_update']);
+                    add_action('woocommerce_single_product_summary', [$this, 'gr_show_single_product_lable']);
+                    add_action('woocommerce_after_add_to_cart_button', [$this, 'gr_show_single_product_buy_lable']);
+                    add_action('woocommerce_before_cart_totals', [$this, 'gr_show_redeem_points_lable']);
+                    add_action('template_redirect', [$this, 'gr_before_cart']);
+                    add_action('woocommerce_before_checkout_form', [$this, 'gr_show_redeem_points_lable']);
+                    add_action('woocommerce_cart_calculate_fees', [$this, 'gr_custom_discount']);
+                    add_action('wp_ajax_check_redeem_update', [$this, 'gr_update_lable_carts_page']);
+                    add_action('wp_ajax_gr_get_cart_details', [$this, 'gr_get_cart_details']);
+                    add_action('wp_ajax_apply_gr_discount', [$this, 'gr_custom_discount_ajax']);
                     // WC AJAX can be used for frontend ajax requests.
-                    add_action('wp_footer', array(&$this, 'gr_widget'));
-                    add_action('comment_form_before', array(&$this, 'gr_show_product_review_lable'));
-                    add_action('comment_unapproved_review', array(&$this, 'gr_send_comment_status_change'));
-                    add_action('comment_approved_review', array(&$this, 'gr_send_comment_status_change'));
-                    add_action('comment_spam_review', array(&$this, 'gr_send_comment_status_change'));
-                    add_action('comment_trash_review', array(&$this, 'gr_send_comment_status_change'));
-                    add_action('woocommerce_checkout_process', array(&$this, 'validate_applied_coupon_checkout'));
+                    add_action('wp_footer', [$this, 'gr_widget']);
+                    add_action('comment_form_before', [$this, 'gr_show_product_review_lable']);
+                    add_action('comment_unapproved_review', [$this, 'gr_send_comment_status_change']);
+                    add_action('comment_approved_review', [$this, 'gr_send_comment_status_change']);
+                    add_action('comment_spam_review', [$this, 'gr_send_comment_status_change']);
+                    add_action('comment_trash_review', [$this, 'gr_send_comment_status_change']);
+                    add_action('woocommerce_checkout_process', [$this, 'validate_applied_coupon_checkout']);
                 }
             } catch(Exception $ex){ }
             // Possibly do additional admin_init tasks
@@ -1255,9 +1307,10 @@ if(!class_exists('GR_Connect'))
         {
             try {
                 // register the settings for this plugin
-                add_action('wp_ajax_create_account', array(&$this, 'gr_ajax_create_account'));
-                add_action('wp_ajax_check_settings', array(&$this, 'gr_ajax_check_settings'));
-                add_action('wp_ajax_check_login', array(&$this, 'gr_ajax_check_login'));
+                add_action('wp_ajax_create_account', [$this, 'gr_ajax_create_account']);
+                add_action('wp_ajax_check_settings', [$this, 'gr_ajax_check_settings']);
+                add_action('wp_ajax_check_login', [$this, 'gr_ajax_check_login']);
+                add_action('wp_ajax_check_autologin', array(&$this, 'gr_ajax_check_autologin'));
             } catch (Exception $ex) {
 
             }
@@ -1278,7 +1331,7 @@ if(!class_exists('GR_Connect'))
                 $arr['error'] = 0;
                 $cid = $cemail = $cname = $first_name = $last_name = '';
 
-                $user_roles = '';
+                $current_user = null;
                 if(is_user_logged_in())
                 {
                     $current_user = wp_get_current_user();
@@ -1287,22 +1340,17 @@ if(!class_exists('GR_Connect'))
                     $cname = $current_user->display_name;
                     $first_name = $current_user->user_firstname;
                     $last_name = $current_user->user_lastname;
-
-                    if (!empty($current_user->roles))
-                        $user_roles = ',user_roles : ' . json_encode ($current_user->roles);
                 }
 
-                $orderConfig = '';
+                $orderConfig = 0;
                 if (is_order_received_page()) {
 
                     // Reset auto apply points flag in order thank you page.
                     WC()->session->set('gr_pbp_auto_apply_done', 0);
 
-                    $orderConfig = ', is_thankyou_page: "true"';
+                    $orderConfig = 1;
                     $order_id = self::_getOrderID();
                     if (!empty($order_id)) {
-                        $orderConfig .= ', order_id: "'.$order_id.'"';
-
                         try {
                             WC()->session->set('gr_discount_applied', 0);
                             $gr_applied_points = WC()->session->get('gr_applied_points', '');
@@ -1352,16 +1400,53 @@ if(!class_exists('GR_Connect'))
                 $discounted_amount = WC()->session->get('gr_user_max_discount', 0);
                 $is_discount_applied  = WC()->session->get('gr_discount_applied', 0);
                 $cart_url = !empty(wc_get_cart_url()) ? esc_url(wc_get_cart_url()) : '';
-                $gr_sdk_version = !empty(WC()->session->get('gr_sdk_version', 0)) ? WC()->session->get('gr_sdk_version', 0): self::$_plugin_version;
-		        $gr_widget_config_version = !empty(WC()->session->get('gr_widget_config_version', 0)) ? WC()->session->get('gr_widget_config_version', 0): WC()->session->get('gr_api_sess', 0);
+                $gr_sdk_version = !empty(WC()->session->get('gr_sdk_version', 0)) ? WC()->session->get('gr_sdk_version', 0) : self::$_plugin_version;
+                $gr_widget_config_version = !empty(WC()->session->get('gr_widget_config_version', 0)) ? WC()->session->get('gr_widget_config_version', 0) : WC()->session->get('gr_api_sess', 0);
 
-                echo '<script>var AMGRConfig = {user : {name : "' . $cname . '", first_name : "' . $first_name . '", last_name : "' . $last_name . '", email : "' . $cemail . '", id : "' . $cid . '", country : ""' . $user_roles . $orderConfig . ',gr_applied_points: "' . WC()->session->get('gr_user_deduct_points', 0) . '",discounted_amount:"' . $discounted_amount . '",is_discount_applied:"' . $is_discount_applied . '", extra_pbp: "' . WC()->session->get('gr_user_extra_pay_points', 0) . '"}, site : {id : "' . $id_site . '", domain : "' . get_option('siteurl') . '", cart_count: "' . $cart_count . '",cart_url: "' . $cart_url . '",platform : "WP", sdk_version: "'.$gr_sdk_version.'", version : "'.$gr_widget_config_version.'"}, gr_nonce : "'. wp_create_nonce('gr_nonce') .'"};
+                $config = [
+                    'user' => [
+                        'name' => esc_js($cname),
+                        'first_name' => esc_js($first_name),
+                        'last_name' => esc_js($last_name),
+                        'email' => esc_js($cemail),
+                        'id' => esc_js($cid),
+                        'country' => "",
+                        'gr_applied_points' => esc_js(WC()->session->get('gr_user_deduct_points', 0)),
+                        'discounted_amount' => esc_js($discounted_amount),
+                        'is_discount_applied' => esc_js($is_discount_applied),
+                        'extra_pbp' => esc_js(WC()->session->get('gr_user_extra_pay_points', 0))
+                    ],
+                    'site' => [
+                        'id' => esc_js($id_site),
+                        'domain' => esc_js(get_option('siteurl')),
+                        'cart_count' => esc_js($cart_count),
+                        'cart_url' => esc_js($cart_url),
+                        'platform' => 'WP',
+                        'sdk_version' => esc_js($gr_sdk_version),
+                        'version' => esc_js($gr_widget_config_version),
 
+                    ],
+                ];
+
+                // User role check
+                if (!empty($current_user) && !empty($current_user->roles)) {
+                    $config['user']['user_roles'] = ($current_user->roles);
+                }
+
+                // Add thankyou page data if on order received page
+                if (!empty($orderConfig)) {
+                    $config['user']['is_thankyou_page'] = 'true';
+                    if (!empty($order_id)) {
+                        $config['user']['order_id'] = esc_js($order_id);
+                    }
+                }
+
+                echo '<script>var AMGRConfig = ' . wp_json_encode($config) . ';
                 (function(d, s, id) {
                     var js, amjs = d.getElementsByTagName(s)[0];
                     if (d.getElementById(id)) return;
                     js = d.createElement(s); js.id = id; js.async = true;
-                    js.src = "'.self::$_c_sdk_url.'?v='.$gr_sdk_version.'";
+                    js.src = "' . esc_url(self::$_c_sdk_url) . '?v=' . esc_attr($gr_sdk_version) . '";
                     amjs.parentNode.insertBefore(js, amjs);
                 }(document, "script", "gratisfaction-sdk"));
                 </script>';
@@ -1451,15 +1536,7 @@ if(!class_exists('GR_Connect'))
                 if (empty($grShopId) || empty($grAppId) || empty($grCampId) || empty($grPayload))
                     return;
 
-                $param = array(
-                    'id_site'   => $grAppId,
-                    'payload'   => $grPayload,
-                    'id'        => $post->ID,
-                    'title'     => $post->post_title,
-                    'url'       => get_permalink($post->ID),
-                    'publish'   => $post->post_status == 'publish' ? 1 : 0,
-                    'is_embed_landing_url' => $is_embed_landing_url
-                );
+                $param = ['id_site' => $grAppId, 'payload' => $grPayload, 'id' => $post->ID, 'title' => $post->post_title, 'url' => get_permalink($post->ID), 'publish' => $post->post_status == 'publish' ? 1 : 0, 'is_embed_landing_url' => $is_embed_landing_url, 'plugin_version' => self::$_plugin_version];
 
                 $res = self::_curlResp($param, $url);
                 if(empty($res) || $res['error'] == 1) {
@@ -1508,6 +1585,8 @@ if(!class_exists('GR_Connect'))
                 $review_details['product_key'] = !empty($testimonial_key) ? $testimonial_key : '';
                 $review_details['product_url'] = !empty($testimonial_url) ? $testimonial_url : '';
                 $review_details['sub_type'] = 'wpm-testimonial';
+                $review_details['plugin_version'] = self::$_plugin_version;
+                $review_details['payload'] = get_option('grconnect_payload', 0);
 
                 // Check the user role is allowed to proceed
                 $user = get_user_by('email', $post_meta['email'][0]);
@@ -1542,9 +1621,9 @@ if(!class_exists('GR_Connect'))
                 $url = self::$_callback_url . $url . '/' . $id;
 
                 if (!empty($rtype) && $rtype == 'link') {
-                    $content = '<a class="gr-widget ec-widget" href="' . $url . '">Rewards</a>';
+                    $content = '<a class="gr-widget ec-widget" href="' . esc_url($url) . '" >Rewards</a>';
                 } else {
-                    $content = '<div class="GREmbedContainer"><iframe data-grclass="gr_iframe_widget" class="gr_iframe_widget" vspace="0" hspace="0" width="100%" height="400px" src="' . $url . '" frameborder="0" allow="clipboard-read; clipboard-write">Rewards</iframe></div>
+                    $content = '<div class="GREmbedContainer"><iframe data-grclass="gr_iframe_widget" class="gr_iframe_widget" vspace="0" hspace="0" width="100%" height="400px" src="' . esc_url($url) . '" frameborder="0" allow="clipboard-read; clipboard-write">Rewards</iframe></div>
                     <script>
                     try{if("URLSearchParams"in window){var mavtoken,params={},searchParams=new URLSearchParams(window.location.search);searchParams.has("id_ref")?(params.id_ref=searchParams.get("id_ref"),searchParams.has("mavtoken")&&(params.mavtoken=searchParams.get("mavtoken"))):"undefined"==typeof Storage||void 0!==(mavtoken=localStorage.GRmavtoken)&&""!=mavtoken&&null!=mavtoken&&"null"!=mavtoken&&"NULL"!=mavtoken&&(params.mavtoken=mavtoken);for(var app_url,elems=document.querySelectorAll("[data-grclass]"),sParams=new URLSearchParams(params),i=0;i<elems.length;i++)elems[i].id="ec_iframe_"+i,0<Object.keys(params).length&&(app_url=elems[i].src,app_url+=(-1==app_url.indexOf("?")?"?":"&")+sParams,elems[i].src=app_url),void 0!==elems[i].className&&""!=elems[i].className||(elems[i].className="gr_iframe_widget")}}catch(a){}
                     </script>';
@@ -1572,7 +1651,7 @@ if(!class_exists('GR_Connect'))
         public function add_menu()
         {
             try {
-                add_options_page('GR Connect Settings', 'Gratisfaction', 'manage_options', 'grconnect', array(&$this, 'gr_plugin_settings_page'));
+                add_options_page('GR Connect Settings', 'Gratisfaction', 'manage_options', 'grconnect', [$this, 'gr_plugin_settings_page']);
             } catch (Exception $ex) {
 
             }
@@ -1707,6 +1786,7 @@ if(!class_exists('GR_Connect'))
                 $params['admin_email'] = $adminEmail;
                 $params['password'] = sanitize_text_field( $_POST['grconnect_login_pwd'] );
                 $params['shop_url'] = get_option('siteurl');
+                $params['plugin_version'] = self::$_plugin_version;
 
                 $httpObj = (new HttpRequestHandler)
                                 ->setPostData($params)
@@ -1729,7 +1809,15 @@ if(!class_exists('GR_Connect'))
                     $res['frame_url'] = self::$_callback_url . 'autologin?id_shop=' . $resp['id_shop'] . '&admin_email=' . urlencode($adminEmail) . '&payload=' . $resp['pay_load'] . '&cur=' . get_option('woocommerce_currency', 'USD');
 
                     // Update WP plugin status
-                    $paramStatus = array('app' => 'gr', 'plugin_type' => 'WP', 'status' => 'activate', 'id_shop' => $resp['id_shop'], 'id_site' => $resp['id_site'], 'payload' => $resp['pay_load']);
+                    $paramStatus = [
+                        'app' => 'gr',
+                        'plugin_type' => 'WP',
+                        'status' => 'activate',
+                        'id_shop' => $resp['id_shop'],
+                        'id_site' => $resp['id_site'],
+                        'payload' => $resp['pay_load'],
+                        'plugin_version' => self::$_plugin_version
+                    ];
                     $urlStatus = self::$_callback_url . self::$_api_version . 'pluginStatus';
 
                     $httpObj = (new HttpRequestHandler)
@@ -1798,7 +1886,8 @@ if(!class_exists('GR_Connect'))
                     $res['frame_url'] = self::$_callback_url . 'autologin?id_shop=' . $res['id_shop'] . '&admin_email=' . urlencode($email) . '&payload=' . $res['pay_load'] . '&cur=' . get_option('woocommerce_currency', 'USD');
 
                     // Update WP plugin status
-                    $paramStatus = array('app' => 'gr', 'plugin_type' => 'WP', 'status' => 'activate', 'id_shop' => $res['id_shop'], 'id_site' => $res['id_site'], 'payload' => $res['pay_load']);
+                    $paramStatus = ['app' => 'gr', 'plugin_type' => 'WP', 'status' => 'activate', 'id_shop' => $res['id_shop'], 'id_site' => $res['id_site'], 'payload' => $res['pay_load'], 'plugin_version' => self::$_plugin_version];
+
                     $urlStatus = self::$_callback_url . self::$_api_version . 'pluginStatus';
 
                     $httpObj = (new HttpRequestHandler)
@@ -1898,6 +1987,79 @@ if(!class_exists('GR_Connect'))
 
             die(json_encode($res));
         }
+
+         /**
+         * Handle AJAX request for auto-login functionality
+         *
+         * This function retrieves shop credentials, makes an API request to get an auto-login token,
+         * builds the auto-login URL, and returns the response as JSON.
+         *
+         * @return void Dies after outputting JSON response
+         */
+
+         public function gr_ajax_check_autologin()
+         {
+             $res = array('error' => 1, 'message' => 'Unknown error');
+             try {
+                 // Initialize $arr before using it
+                 $shop_credentials = [
+                     'id_shop' => 0,
+                     'admin_email' => '',
+                     'payload' => 0
+                 ];
+                 // Retrieve shop credentials if registration is active
+                 if (get_option('grconnect_register', 0) == 1) {
+                     $shop_credentials['id_shop'] = get_option('grconnect_shop_id', 0);
+                     $shop_credentials['admin_email'] = get_option('grconnect_admin_email');
+                     $shop_credentials['payload'] = get_option('grconnect_payload', 0);
+                 }
+                 // Get client IP address with fallback to empty string if not available
+                 $ip_address = !empty($_SERVER['REMOTE_ADDR']) ? filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP) : '';
+                 // Prepare and execute API request to get auto-login token
+                     $httpObj = (new HttpRequestHandler)
+                     ->setPostData([
+                         'id_shop' => $shop_credentials['id_shop'],
+                         'payload' => $shop_credentials['payload'],
+                         'ip_address' => $ip_address
+                     ])
+                     ->exec(self::$_callback_url . self::$_api_version . 'getAutologinToken');
+
+                 $resp = $httpObj->getResponse();
+                 // Process API response if not empty
+                 if (!empty($resp)) {
+                     $response = json_decode($resp, true);
+                     // Check if JSON is valid and is an array
+                     if (json_last_error() === JSON_ERROR_NONE && is_array($response)) {
+                         if (empty($response['error']) && !empty($response['token'])) {
+                             $token = $response['token'];
+
+                             // Build auto-login URL with shop credentials and currency
+                             $frame_url = self::$_callback_url . 'autologin?' . http_build_query([
+                                 'id_shop' => $shop_credentials['id_shop'],
+                                 'admin_email' => $shop_credentials['admin_email'],
+                                 'payload' => $shop_credentials['payload'],
+                                 'cur' => get_option('woocommerce_currency', 'USD'),
+                                 'token' => urlencode($token),
+
+                             ]);
+                             $res['error'] = 0;
+                             $res['frame_url'] = $frame_url;
+                         } else {
+                             if (empty($response['error'])) {
+                                 $response['error'] = 'Token Missing';
+                             }
+                             throw new Exception($response['error']);
+                         }
+                     } else {
+                         throw new Exception('Invalid JSON response');
+                     }
+                 }
+             } catch (Exception $ex) {
+                 $res['message'] = 'Error: ' . $ex->getMessage();
+                 $res['error'] = 1;
+             }
+             die(json_encode($res));
+         }
 
         public function gr_show_redeem_points_lable()
         {
@@ -2132,7 +2294,7 @@ if(!class_exists('GR_Connect'))
                     return;
 
                 // Verify nonce
-                $msg = self::_checkNonce('apply_gr_discount');
+                $msg = self::_checkNonce('apply_gr_discount','',0);
                 if (!empty($msg)) {
                     wp_send_json_error($msg);
                 }
@@ -2157,7 +2319,7 @@ if(!class_exists('GR_Connect'))
 					return;
 
                 // Verify nonce
-                $msg = self::_checkNonce();
+                $msg = self::_checkNonce('','',0);
                 if (!empty($msg)) {
                     wp_send_json_error($msg);
                 }
@@ -2189,7 +2351,7 @@ if(!class_exists('GR_Connect'))
                     return;
 
                 // Verify nonce
-                $msg = self::_checkNonce();
+                $msg =  self::_checkNonce('','',0);
                 if (!empty($msg)) {
                     wp_send_json_error($msg);
                 }
@@ -2947,15 +3109,26 @@ if(!class_exists('GR_Connect'))
          * @param string $key
          * @return string
          */
-        protected static function _checkNonce($nounce = 'gr_nonce', $key = 'security')
+        protected static function _checkNonce($nounce = 'gr_nonce', $key = 'security', $adminOption = 1)
         {
             try {
                 $msg = '';
+                if (empty($nounce)) {
+                    $nounce = 'gr_nonce';
+                }
+                // If $key is empty, set it to 'security'
+                if (empty($key)) {
+                    $key = 'security';
+                }
                 // Verify nonce
                 $nonce_check = check_ajax_referer($nounce, $key, false);
                 if ($nonce_check == false) {
                     // Handle invalid nonce
                     $msg = 'Sorry, you are not allowed!';
+                }
+                // Only check capabilities if useraction is empty
+                if (!empty($adminOption) && !current_user_can('manage_options')) {
+                    $msg = __('Insufficient permissions', 'plugin-domain');
                 }
             } catch (Exception $e) {
                 $msg = 'Sorry, you are not allowed!';
@@ -3257,236 +3430,6 @@ if(!class_exists('GR_Connect'))
             return $msg;
         }
 
-        public function apmgr_create_discount()
-        {
-            try
-            {
-                global $wp_rest_server;
-                global $wpdb;
-
-                if(is_admin())
-                    return;
-
-                $useragent = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
-                if(!strpos($useragent, 'Appsmav'))
-                    return;
-
-                if( !has_action( 'rest_api_init' ) ){
-                    $wp_rest_server = new WP_REST_Server();
-                    do_action('rest_api_init', $wp_rest_server);
-                }
-
-                add_filter('wpss_misc_form_spam_check_bypass', FALSE, 10);
-
-                //user email verification
-                if(!empty($_POST['verify_user']))
-                {
-                    $email = sanitize_email( $_POST['verify_user'] );
-                    $user = get_user_by('email', $email);
-                    $resp['error'] = 1;
-                    $resp['msg'] = 'No User Exist';
-
-                    if(!empty($user))
-                    {
-                        $resp['error'] = 0;
-                        $resp['msg'] = 'User Exist';
-                        $resp['name'] = $user->first_name . ' ' . $user->last_name;
-                        $resp['first_name'] = $user->first_name;
-                        $resp['last_name']  = $user->last_name;
-                        $resp['id'] = $user->ID;
-                        $resp['customer_group'] = $user->roles;
-                    }
-
-                    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-                    header("Content-Type: application/json; charset=UTF-8");
-                    die(json_encode($resp));
-                }
-
-                // Verify Product review is enabled or not
-                if(!empty($_POST['verify_review_enabled']))
-                    die( get_option('woocommerce_enable_reviews', 'no') );
-
-                if(empty($_POST['cpn_type']) || empty($_POST['grcpn_code']))
-                    return;
-
-                if(!isset($_POST['cpn_value']) || !isset($_POST['free_ship']) || !isset($_POST['min_order']) || !isset($_POST['cpn_descp']))
-                    throw new Exception('InvalidRequest2');
-
-                if(!class_exists('WC_Integration'))
-                    throw new Exception('WooPluginNotFound');
-
-                if(!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))))
-                    throw new Exception('PluginDeactivated');
-
-                // Validate coupon types
-                if(!in_array(wc_clean($_POST['cpn_type']), array_keys(wc_get_coupon_types())))
-                    throw new WC_CLI_Exception('woocommerce_cli_invalid_coupon_type', sprintf(__('Invalid coupon type - the coupon type must be any of these: %s', 'woocommerce'), implode(', ', array_keys(wc_get_coupon_types()))));
-
-                $assoc_args = array(
-                    'code' => sanitize_text_field($_POST['grcpn_code']),
-                    'type' => sanitize_text_field($_POST['cpn_type']),
-                    'amount' => empty($_POST['cpn_value']) ? 0 : sanitize_text_field($_POST['cpn_value']),
-                    'individual_use' => true,
-                    'usage_limit' => 1,
-                    'usage_limit_per_user' => 1,
-                    'enable_free_shipping' => sanitize_text_field($_POST['free_ship']),
-                    'minimum_amount' => sanitize_text_field($_POST['min_order']),
-                    'product_ids' => !empty($_POST['product_ids']) ? sanitize_text_field($_POST['product_ids']) : '',
-                    'exclude_product_ids' => !empty($_POST['exclude_product_ids']) ? sanitize_text_field($_POST['exclude_product_ids']) : '',
-                    'product_category_ids' => !empty($_POST['product_category_ids']) ? sanitize_text_field($_POST['product_category_ids']) : '',
-                    'exclude_product_category_ids' => !empty($_POST['exclude_product_category_ids']) ? sanitize_text_field($_POST['exclude_product_category_ids']) : '',
-                    'maximum_amount' => !empty($_POST['maximum_amount']) ? sanitize_text_field($_POST['maximum_amount']) : '',
-                    'exclude_sale_items' => !empty($_POST['exclude_sale_items']) ? sanitize_text_field($_POST['exclude_sale_items']) : '',
-                    'customer_emails' => !empty($_POST['email_restrictions']) ? sanitize_text_field($_POST['email_restrictions']) : '',
-                    'description' => sanitize_text_field($_POST['cpn_descp']),
-                    'expiry_date' => empty($_POST['expiry_date']) ? '' : sanitize_text_field($_POST['expiry_date'])
-                );
-
-                $assoc_args['product_ids'] = !empty($assoc_args['product_ids']) ? json_decode($assoc_args['product_ids'], true) : [];
-                $assoc_args['exclude_product_ids'] = !empty($assoc_args['exclude_product_ids']) ? json_decode($assoc_args['exclude_product_ids'], true) : [];
-                $assoc_args['product_category_ids'] = !empty($assoc_args['product_category_ids']) ? json_decode($assoc_args['product_category_ids'], true) : [];
-                $assoc_args['exclude_product_category_ids'] = !empty($assoc_args['exclude_product_category_ids']) ? json_decode($assoc_args['exclude_product_category_ids'], true) : [];
-                $assoc_args['customer_emails'] = !empty($assoc_args['customer_emails']) ? json_decode(stripslashes($assoc_args['customer_emails']), true) : [];
-
-                if(!empty($_POST['usage_limit_per_user']))
-                    $assoc_args['usage_limit'] = '';
-
-                if(get_option('woocommerce_enable_coupons') !== 'yes')
-                    update_option('woocommerce_enable_coupons', 'yes');
-
-                $coupon_code = apply_filters('woocommerce_coupon_code', $assoc_args['code']);
-
-                // Check for duplicate coupon codes.
-                $coupon_found = $wpdb->get_var($wpdb->prepare("
-                        SELECT $wpdb->posts.ID
-                        FROM $wpdb->posts
-                        WHERE $wpdb->posts.post_type = 'shop_coupon'
-                        AND $wpdb->posts.post_status = 'publish'
-                        AND $wpdb->posts.post_title = '%s'
-                 ", $coupon_code));
-
-                if($coupon_found)
-                    throw new Exception('DuplicateCoupon');
-
-                $url = self::$_callback_url . self::$_api_version . 'wooCpnValidate';
-
-                $app_id = get_option('grconnect_appid');
-                $payload = get_option('grconnect_payload', 0);
-
-                if(empty($app_id) || empty($payload))
-                    throw new Exception('IntegrationMissing');
-
-                $param = array(
-                    'id_coupon' => sanitize_text_field( $_POST['id_coupon']),
-                    'grcpn_code' => sanitize_text_field( $_POST['grcpn_code']),
-                    'hash' => sanitize_text_field( $_POST['hash']),
-                    'amount' => sanitize_text_field( $_POST['cpn_value']),
-                    'type' => sanitize_text_field( $_POST['cpn_type']),
-                    'minimum_amount' => sanitize_text_field( $_POST['min_order']),
-                    'id_site' => $app_id,
-                    'payload' => $payload,
-                    'plugin_version' => self::$_plugin_version
-                );
-
-                $httpObj = (new HttpRequestHandler)
-                                ->setPostData($param)
-                                ->exec($url);
-                $res = $httpObj->getResponse();
-
-                if(!empty($res))
-                    $res = json_decode($res, true);
-
-                if(empty($res) || !empty($res['error']))
-                    throw new Exception('VerificationFailed');
-
-                $defaults = array(
-                    'type' => 'fixed_cart',
-                    'amount' => 0,
-                    'individual_use' => false,
-                    'product_ids' => array(),
-                    'exclude_product_ids' => array(),
-                    'usage_limit' => '',
-                    'usage_limit_per_user' => '',
-                    'limit_usage_to_x_items' => '',
-                    'usage_count' => '',
-                    'expiry_date' => '',
-                    'enable_free_shipping' => false,
-                    'product_category_ids' => array(),
-                    'exclude_product_category_ids' => array(),
-                    'exclude_sale_items' => false,
-                    'minimum_amount' => '',
-                    'maximum_amount' => '',
-                    'customer_emails' => array(),
-                    'description' => ''
-                );
-
-                $coupon_data = wp_parse_args($assoc_args, $defaults);
-
-                $new_coupon = array(
-                    'post_title' => $coupon_code,
-                    'post_content' => '',
-                    'post_status' => 'publish',
-                    'post_author' => get_current_user_id(),
-                    'post_type' => 'shop_coupon',
-                    'post_excerpt' => $coupon_data['description']
-                );
-
-                $id = wp_insert_post($new_coupon, $wp_error = false);
-
-                if(is_wp_error($id))
-                    throw new WC_CLI_Exception('woocommerce_cli_cannot_create_coupon', $id->get_error_message());
-
-                // Set coupon meta
-                update_post_meta($id, 'discount_type', $coupon_data['type']);
-                update_post_meta($id, 'coupon_amount', wc_format_decimal($coupon_data['amount']));
-                update_post_meta($id, 'individual_use', (!empty($coupon_data['individual_use']) ) ? 'yes' : 'no' );
-                update_post_meta($id, 'product_ids', implode(',', array_filter(array_map('intval', $coupon_data['product_ids']))));
-                update_post_meta($id, 'exclude_product_ids', implode(',', array_filter(array_map('intval', $coupon_data['exclude_product_ids']))));
-                update_post_meta($id, 'usage_limit', absint($coupon_data['usage_limit']));
-                update_post_meta($id, 'usage_limit_per_user', absint($coupon_data['usage_limit_per_user']));
-                update_post_meta($id, 'limit_usage_to_x_items', absint($coupon_data['limit_usage_to_x_items']));
-                update_post_meta($id, 'usage_count', absint($coupon_data['usage_count']));
-
-                if('' !== wc_clean($coupon_data['expiry_date']))
-                    $coupon_data['expiry_date'] = date('Y-m-d', strtotime($coupon_data['expiry_date']));
-
-                update_post_meta($id, 'expiry_date', wc_clean($coupon_data['expiry_date']));
-                update_post_meta($id, 'free_shipping', (!empty($coupon_data['enable_free_shipping']) ) ? 'yes' : 'no' );
-                update_post_meta($id, 'product_categories', array_filter(array_map('intval', $coupon_data['product_category_ids'])));
-                update_post_meta($id, 'exclude_product_categories', array_filter(array_map('intval', $coupon_data['exclude_product_category_ids'])));
-                update_post_meta($id, 'exclude_sale_items', (!empty($coupon_data['exclude_sale_items']) ) ? 'yes' : 'no' );
-                update_post_meta($id, 'minimum_amount', wc_format_decimal($coupon_data['minimum_amount']));
-                update_post_meta($id, 'maximum_amount', wc_format_decimal($coupon_data['maximum_amount']));
-                update_post_meta($id, 'customer_email', array_filter(array_map('sanitize_email', $coupon_data['customer_emails'])));
-
-                if (!empty($_POST['custom_attributes']))
-                {
-                    $custom_attributes = stripslashes(sanitize_text_field($_POST['custom_attributes']));
-                    $custom_attributes = json_decode($custom_attributes, true);
-                    if (!empty($custom_attributes) && is_array($custom_attributes))
-                    {
-                        foreach ($custom_attributes as $prop_name => $prop_value) {
-                            update_post_meta($id, $prop_name, wc_clean($prop_value));
-                        }
-                    }
-                }
-
-                $resp['error'] = 0;
-                $resp['code'] = $coupon_code;
-                $resp['id'] = $id;
-                $resp['msg'] = 'Success';
-            }
-            catch(Exception $ex)
-            {
-                $resp['error'] = 1;
-                $resp['msg'] = $ex->getMessage();
-            }
-
-            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-            header("Content-Type: application/json; charset=UTF-8");
-            die(json_encode($resp));
-        }
-
         public function init_page_load()
         {
             try {
@@ -3624,6 +3567,9 @@ if(!class_exists('GR_Connect'))
                 $review_details['rating'] = !empty($commentDetails['rating'][0]) ? $commentDetails['rating'][0] : '';
                 $review_details['product_key'] = !empty($product_key) ? $product_key : '';
                 $review_details['product_url'] = !empty($product_url) ? $product_url : '';
+                $review_details['plugin_version'] = self::$_plugin_version;
+                $review_details['payload'] = get_option('grconnect_payload', 0);
+
 
                 $urlApi = self::$_callback_url . self::$_api_version . 'addReviewEntry';
                 $this->callGrApiReview($review_details, $urlApi);

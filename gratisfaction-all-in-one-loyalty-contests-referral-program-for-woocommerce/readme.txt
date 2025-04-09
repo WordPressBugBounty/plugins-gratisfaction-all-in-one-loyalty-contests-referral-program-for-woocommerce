@@ -1,10 +1,10 @@
 ﻿=== Gratisfaction- Loyalty, Rewards , Referral, Birthday and Giveaway Program ===
 Contributors: akashmalik
-Tags: Giveaways, contest, Loyalty, Christmas, Thanksgiving
+Tags: giveaways, contest, loyalty, points, easter
 Donate link: https://appsmav.com
 Requires at least: 3.0.1
 Tested up to: 6.7
-Stable tag: 4.4.6
+Stable tag: 4.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -252,6 +252,9 @@ Contact us Anytime! For any pre-sales or product inquiries, send us an email to 
 
 
 == Changelog ==
+= 4.5.0 =
+Enhanced security and improved performance
+
 = 4.4.6 =
 Improvements and bug fixes
 
@@ -609,5 +612,5 @@ This version have register shop feature with GR site.
 
 
 == Upgrade Notice ==
-= 4.4.6 =
-Improvements and bug fixes
+= 4.5.0 =
+Enhanced security and improved performance

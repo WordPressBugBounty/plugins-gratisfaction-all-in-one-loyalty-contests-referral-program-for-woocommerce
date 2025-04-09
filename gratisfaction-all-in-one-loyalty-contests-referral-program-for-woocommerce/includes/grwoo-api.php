@@ -233,7 +233,8 @@ class Grwoo_API extends WP_REST_Controller
             $payload = get_option('grconnect_payload', 0);
             $post_payload = sanitize_text_field($_POST['payload']);
 
-            if ($payload != $post_payload) {
+            // Use hash_equals for timing attack protection
+            if (!hash_equals($payload, $post_payload)) {
                 throw new Exception('Warning: ');
             }
 
@@ -281,6 +282,7 @@ class Grwoo_API extends WP_REST_Controller
             $params['id_site'] = $id_site;
             $params['id_shop'] = $id_shop;
             $params['payloadlite'] = sanitize_text_field($_POST['payloadlite']);
+            $params['plugin_version'] = GR_Connect::$_plugin_version;
 
             $urlApi = GR_Connect::$_callback_url . GR_Connect::$_api_version . 'valdiatePayload';
             $httpObj = (new HttpRequestHandler)
@@ -346,18 +348,30 @@ class Grwoo_API extends WP_REST_Controller
         $data = array();
         try
         {
-            $email = sanitize_email(trim($_POST['email']));
-            $user_name = sanitize_text_field($_POST['user_name']);
-            $first_name = sanitize_text_field($_POST['first_name']);
-            $last_name = sanitize_text_field($_POST['last_name']);
-
-            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("Invalid email address");
             }
 
-            if (empty($user_name)) {
+            if (empty($_POST['user_name'])) {
                 throw new Exception("Invalid user name");
             }
+
+            if (empty($_POST['first_name']) || strlen($_POST['first_name']) > 50) {
+                throw new Exception("Invalid first name");
+            }
+
+            if (!empty($_POST['last_name']) && strlen($_POST['last_name']) > 50) {
+                throw new Exception("Invalid last name");
+            }
+
+            $email = sanitize_email($_POST['email']);
+            if (!is_email($email)) {
+                throw new Exception("Invalid email address");
+            }
+
+            $user_name = sanitize_user($_POST['user_name']);
+            $first_name = sanitize_text_field($_POST['first_name']);
+            $last_name = empty($_POST['last_name']) ? '' : sanitize_text_field($_POST['last_name']);
 
             $user = get_user_by('email', $email);
             if (!empty($user)) {
@@ -730,6 +744,7 @@ class Grwoo_API extends WP_REST_Controller
             $params['id_site'] = $id_site;
             $params['payload'] = $payload;
             $params['email'] = $email;
+            $params['plugin_version'] = GR_Connect::$_plugin_version;
 
             $urlApi = GR_Connect::$_callback_url . 'services/v2/user/points';
             $httpObj = (new HttpRequestHandler)
@@ -823,8 +838,7 @@ class Grwoo_API extends WP_REST_Controller
     {
         $data = array('error' => 0);
 
-        try
-        {
+        try {
             if (empty($_POST['id'])) {
                 throw new Exception('Invalid Page');
             }
@@ -835,18 +849,26 @@ class Grwoo_API extends WP_REST_Controller
             }
 
             $page = get_post($id_post);
+            // Check if page exists
+            if (!$page) {
+                throw new Exception('Page not found');
+            }
+            
             if(is_wp_error($page)) {
                 throw new Exception('cannot_update_page'. $page->get_error_message());
             }
 
+            // Verify post type
+            if ($page->post_type !== 'page') {
+                throw new Exception('Invalid post type');
+            }
+
             $data['error']	= 0;
             $data['id'] 	= $page->ID;
-            $data['url'] 	= get_permalink($id);
-            $data['is_embed_landing_url'] = get_post_meta(get_the_ID(), 'is_embed_landing_url');
+            $data['url'] 	= get_permalink($id_post);
+            $data['is_embed_landing_url'] = get_post_meta($id_post, 'is_embed_landing_url', true);
             $data['msg']	= 'Success';
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             $data['error']          =   1;
             $data['error_message']  =   $e->getMessage();
         }
@@ -1322,18 +1344,8 @@ class Grwoo_API extends WP_REST_Controller
     {
         try
         {
-            global $wp_rest_server;
             global $wpdb;
 
-            if(is_admin())
-                throw new Exception('Admin user');
-
-            if( !has_action( 'rest_api_init' ) ) {
-                $wp_rest_server = new WP_REST_Server();
-                do_action('rest_api_init', $wp_rest_server);
-            }
-
-            add_filter('wpss_misc_form_spam_check_bypass', FALSE, 10);
 
             if(empty($_POST['cpn_type']) || empty($_POST['grcpn_code']))
                 throw new Exception('InvalidRequest1');
