@@ -3,8 +3,8 @@ Contributors: akashmalik
 Tags: giveaways, contest, loyalty, points, easter
 Donate link: https://appsmav.com
 Requires at least: 3.0.1
-Tested up to: 6.7
-Stable tag: 4.5.0
+Tested up to: 6.8
+Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,13 @@ Loyalty + Referral + Rewards + Birthdays and Anniversaries + Giveaways + Contest
 
 > This plugin works only with WooCommerce. If you do not have a WooCommerce plugin, please install [Gratisfaction for WordPress](https://wordpress.org/plugins/gratisfaction-social-contests-referral-loyalty-rewards-program-by-appsmav/) to avoid technical difficulties.
 
-### READY TO BOOST YOUR BUSINESS THIS HOLIDAY SEASON? 
+### READY TO BOOST YOUR BUSINESS THIS HOLIDAY SEASON?
 
 With Gratisfaction, you can kick off a series of exciting holiday campaigns for Halloween, Black Friday, Cyber Monday, Thanksgiving, Christmas, and more! Use our campaign templates designed to supercharge your business growth goals. Check out some examples here: [https://demo.appsmav.com/gr-holidays/](https://demo.appsmav.com/gr-holidays/)
 
-### HOLIDAY SEASON TEMPLATE LIBRARY NOW AVAILABLE: 
+### HOLIDAY SEASON TEMPLATE LIBRARY NOW AVAILABLE:
 
-> Use these templates to easily launch campaigns to boost sales, social media followers, newsletter subscribers, social shares, website traffic, repeat traffic, referrals, surveys, and polls during the upcoming holiday season in just minutes: 
+> Use these templates to easily launch campaigns to boost sales, social media followers, newsletter subscribers, social shares, website traffic, repeat traffic, referrals, surveys, and polls during the upcoming holiday season in just minutes:
 > [Halloween](https://demo.appsmav.com/gr-halloween/),
 > [Black Friday Cyber Monday](https://demo.appsmav.com/gr-black-friday-cyber-monday/),
 > [Thanksgiving](https://demo.appsmav.com/gr-thanksgiving/),
@@ -28,14 +28,14 @@ With Gratisfaction, you can kick off a series of exciting holiday campaigns for 
 > [Valentine’s Day](https://demo.appsmav.com/gr-valentines-day/),
 > [Easter](https://demo.appsmav.com/gr-easter/),
 > [Mother's Day](https://demo.appsmav.com/gr-mothers-day/)
- 
+
 WANT TO SMASH YOUR MARKETING GOALS
 
 WOOCOMMERCE PLUGIN TO HELP BUILD LOYALTY, SALES, REPEAT SALES, REFERRALS , AND MUCH MORE!
 
-INSTANTLY BUILD A LOYALTY POINTS AND REWARDS PROGRAMS, LAUNCH REFERRAL CAMPAIGNS, GIVEAWAYS, CONTESTS, SWEEPSTAKES, PURCHASE TO WIN CAMPAIGNS, BIRTHDAYS AND ANNIVERSARIES AND MUCH MORE! 
+INSTANTLY BUILD A LOYALTY POINTS AND REWARDS PROGRAMS, LAUNCH REFERRAL CAMPAIGNS, GIVEAWAYS, CONTESTS, SWEEPSTAKES, PURCHASE TO WIN CAMPAIGNS, BIRTHDAYS AND ANNIVERSARIES AND MUCH MORE!
 
-Customize and launch multiple types of programs and campaigns in minutes. 
+Customize and launch multiple types of programs and campaigns in minutes.
 
 View goal based pre-built templates.
 
@@ -66,7 +66,7 @@ View goal based pre-built templates.
 *   **Loyalty Rewards Program:** Run a comprehensive loyalty and referral program. [View Template](https://demo.appsmav.com/loyalty/)
 
 *   **Celebrate Events:** Reward customers for their birthdays, pet's birthdays, mother-in-law's birthday, anniversaries and more.  [View Template](https://demo.appsmav.com/birthdays-and-anniversaries/)
- 
+
 *   **Sweepstakes:** Reward people with bonus entries for participating in actions such as sign up, refer, follow, share, watch, and more. Draw winners. [View Templates](https://demo.appsmav.com/gr-sweepstakes-ideas/)
 
 *   **Instant Win Campaigns:** Instantly reward people with coupons for participating in actions such as sign up, refer, follow, share, watch, and more. [View Templates](https://demo.appsmav.com/gr-instant-win-ideas/)
@@ -80,7 +80,7 @@ View goal based pre-built templates.
 *   **Purchase to Win:** Enter customers who have purchased from your store for a chance to win. Increase sales. [View Templates](https://demo.appsmav.com/purchase-to-win/)
 
 
-### HOLIDAY SEASON TEMPLATE LIBRARY NOW AVAILABLE: 
+### HOLIDAY SEASON TEMPLATE LIBRARY NOW AVAILABLE:
 > Use These Template To Launch Campaigns in Minutes for:  [Halloween](https://demo.appsmav.com/gr-halloween/), [Black Friday Cyber Monday](https://demo.appsmav.com/gr-black-friday-cyber-monday/), [Thanksgiving](https://demo.appsmav.com/gr-thanksgiving/), [Christmas](https://demo.appsmav.com/gr-christmas/), Diwali, [Valentine’s Day](https://demo.appsmav.com/gr-valentines-day/), Easter and more…
 
 ### BONUS OFFER!
@@ -95,7 +95,7 @@ Selling on ETSY? You can reward your Etsy customers with points which can be red
 > *   **Loyalty Rewards Program:** Set up your own customized loyalty rewards points program.
 > *   **Referral Program:** Activate multiple types of single or double sided referral programs.
 > *   **NEW! Celebrate Events:** Reward customers for sharing their key life moments, like their birthdays, pet’s birthdays, Mother-In-Law's birthday, anniversaries and more. Create multiple events and give your customers many reasons to visit and purchase from your store!
-> *   **NEW! Reward customers for reviewing your products.** Boost Social Proof! Use WooCommerce Reviews to reward customers for reviewing your products.  
+> *   **NEW! Reward customers for reviewing your products.** Boost Social Proof! Use WooCommerce Reviews to reward customers for reviewing your products.
 > *   **NEW! Reward people for signing up to your newsletters** and see your lists grow!
 > *   **Giveaways and Sweepstakes:** Launch exciting campaigns to engage current users and attract new customers. See the [types of giveaways](https://demo.appsmav.com/gr-giveaway-ideas/) you can run.
 > *   **Instant Win:** Instantly reward people for taking actions e.g. following, sharing, watching, visiting, subscribing, reviewing, commenting and much more...See the [types of campaigns](https://demo.appsmav.com/gr-instant-win-ideas/) you can run.
@@ -109,7 +109,7 @@ Turn your visitors into valuable leads, purchasers, followers, subscribers, refe
 ### WHY SHOULD I USE GRATISFACTION? :
 
 *   Get traffic, leads & sales.
-*   Build multiple lists and sync with popular ESPs like MailChimp, Klaviyo, Constant Contact, Aweber, Campaign Monitor and more...  
+*   Build multiple lists and sync with popular ESPs like MailChimp, Klaviyo, Constant Contact, Aweber, Campaign Monitor and more...
 *   Convert your visitors into customers.
 *   Get Repeat Purchases & Increase Customer Lifetime Value.
 *   Get Referrals.
@@ -130,7 +130,7 @@ Turn your visitors into valuable leads, purchasers, followers, subscribers, refe
 
 *   **ETSY Purchases**
 	If you are selling on ETSY, then Gratisfaction is the perfect solution to reward loyalty points to your Etsy customers and turn them into loyal customers purchasing from your WooCommerce.
-	
+
 *   **Referrals**
 	Reward your customers for bringing in referrals that generate new sales for your business.
 
@@ -139,21 +139,21 @@ Turn your visitors into valuable leads, purchasers, followers, subscribers, refe
 
 *   **Subscribing to your Newsletter**
 	Increase subscriptions by rewarding participants for signing up to your newsletters. Integration with ActiveCampaign, Aweber, Campaign Monitor, Constant Contact, Klaviyo, MailChimp, MailerLite, Sendinblue
-	
-*   **Writing reviews** 
-    Reward customers for reviewing your products. Use WooCommerce Reviews to reward customers for reviewing your products.  
- 
+
+*   **Writing reviews**
+    Reward customers for reviewing your products. Use WooCommerce Reviews to reward customers for reviewing your products.
+
 	More Social Proof= More Conversions! Incentivizing people to write reviews will get you more Social Proof which in turn will lead to higher conversions.
 
 *   **Account signups**
 	Reward visitors with points for registering an account.
-	
+
 *   **Social shares**
 	Give participants points or instant rewards for spreading your store's message to the public on your behalf.
 
 *   **Social media actions**
 	Give participants points or instant rewards for interacting with your store's web presence: Following you on Twitter, visiting your Facebook Page, tweeting or retweeting posts, and more....
-	
+
 *   **Quiz and Surveys**
 	Ask questions, run surveys and in return reward loyalty points and instant prizes.
 
@@ -171,7 +171,7 @@ Turn your visitors into valuable leads, purchasers, followers, subscribers, refe
 Customers can also pay using their loyalty points. This will increase your conversions.
 
 **Giveaways and Viral Offers**
-You can also run multiple campaigns e.g. [giveaways](https://demo.appsmav.com/gr-giveaway-ideas/), viral offers, [instant win promotions](https://demo.appsmav.com/gr-instant-win-ideas/), which will boost engagement and shares. For e.g. you can reward points for actions such as sharing your offers, watching your videos , visiting a page on your website and much more. 
+You can also run multiple campaigns e.g. [giveaways](https://demo.appsmav.com/gr-giveaway-ideas/), viral offers, [instant win promotions](https://demo.appsmav.com/gr-instant-win-ideas/), which will boost engagement and shares. For e.g. you can reward points for actions such as sharing your offers, watching your videos , visiting a page on your website and much more.
 
 **Pricing**
 Gratisfaction is free 100 users (except footer credit removal, which is an optional add-on in every plan including the paid plans) It includes all features. You only pay based on the number of users. For a detailed look at pricing plans see our [pricing page](https://appsmav.com/gratisfaction/pricing-plan.php). Take it for a spin today!
@@ -182,12 +182,12 @@ Contact us Anytime! For any pre-sales or product inquiries, send us an email to 
 We are only an email away for any support or issues. If you don't hear back from us within 8 hours (usually much quicker) then either we have not received your email or please check your spam/junk folder.
 
 > Note: This plugin is only really of use to you if you have an Apps Mav account.
-> This plugin connects to our appsmav.com dashboard for the initial set up, configuration and ongoing management of the app. The plugin will take you through a simple, free & no obligation, registration (sign up) process. 
+> This plugin connects to our appsmav.com dashboard for the initial set up, configuration and ongoing management of the app. The plugin will take you through a simple, free & no obligation, registration (sign up) process.
 > The account setup is done on appsmav.com and is totally free, has no commitments & no obligations. 100 user plan is a fully featured plan and is absolutely free (except footer credit removal, which is an optional add-on in every plan including the paid plans). You can then select from our affordable [plans](https://appsmav.com/gratisfaction/pricing-plan.php).
 
 
 == Installation ==
-Keep in mind that you will be redirected to create an Apps Mav account for it to work with. The initial setup will only take a few minutes, is totally free and has no commitments & no obligations. 
+Keep in mind that you will be redirected to create an Apps Mav account for it to work with. The initial setup will only take a few minutes, is totally free and has no commitments & no obligations.
 1. Upload "gratisfaction-all-in-one-loyalty-contests-referral-program-for-woocommerce" to the "/wp-content/plugins/" directory.
 2. Activate the plugin through the "Plugins" menu in WordPress.
 
@@ -203,22 +203,22 @@ For a detailed look at pricing plans see our [pricing page](https://appsmav.com/
 
 
 = What features are available in the free version?
-Short answer is all features (except footer credit removal, which is an optional add-on in every plan including the paid plans). You can run any number of campaigns, get unrestricted use to all features, run loyalty and referral programs, etc. This free plan is for 100 users. 
+Short answer is all features (except footer credit removal, which is an optional add-on in every plan including the paid plans). You can run any number of campaigns, get unrestricted use to all features, run loyalty and referral programs, etc. This free plan is for 100 users.
 
 = Do I need an Apps Mav account to set up and use this plugin?
 Yes, you do. The set-up, configuration and ongoing management of the app is done through the appsmav.com dashboard. The initial setup will only take a few minutes, is totally free and has no commitments & no obligations. 100 users plan is a fully featured plan and is absolutely free (except footer credit removal, which is an optional add-on in every plan including the paid plans). You can then select from our affordable [plans](https://appsmav.com/gratisfaction/pricing-plan.php).
 
 = Can I activate any one feature?
-Yes, you can activate any or all features. For e.g. you can activate only referral program or reward points on purchases or combine these two. 
+Yes, you can activate any or all features. For e.g. you can activate only referral program or reward points on purchases or combine these two.
 
 = What kinds of holiday season and festivals campaigns can I run?
-you can run unlimited number of giveaways, sweepstakes, contests, competitions, post purchase and instant win campaigns either simultaneously or staggered, for holidays such as Black Friday Cyber Monday, Thanksgiving, Christmas, Valentine's Day. Easter and more. Further you can combine then to achieve your goals for e.g. increasing your newsletter subscribers. followers, shares, boosting traffic, signups, sales, referrals and more 
+you can run unlimited number of giveaways, sweepstakes, contests, competitions, post purchase and instant win campaigns either simultaneously or staggered, for holidays such as Black Friday Cyber Monday, Thanksgiving, Christmas, Valentine's Day. Easter and more. Further you can combine then to achieve your goals for e.g. increasing your newsletter subscribers. followers, shares, boosting traffic, signups, sales, referrals and more
 
 = How much does it cost?
 Gratisfaction is free for 100 users. You can learn more about our [pricing](https://www.appsmav.com/gratisfaction.php)
 
 = What kind of referral schemes can I setup in Gratisfaction?
-Using Gratisfaction you can set up multiple types of referral schemes that are sure to get you awesome referral traffic.  
+Using Gratisfaction you can set up multiple types of referral schemes that are sure to get you awesome referral traffic.
 
 **Double-sided**
 Both the referrer and invited friends are given rewards. Referral can be given Points or Coupons on meeting the referral goal. And Invited friends are also given a discount Coupon. In this, a referral is counted only when an invited friend purchases from your store, using the coupon code shared by the referrer.
@@ -226,32 +226,35 @@ Both the referrer and invited friends are given rewards. Referral can be given P
 **Single-sided**
 Only the referrer is rewarded. A referral is counted when an invited friend signs up to your campaign, using the unique link shared by the referrer (You can also add a sign up goal).
 
-The referrer shares a unique link to your campaign with their friends. 
+The referrer shares a unique link to your campaign with their friends.
 
 = What kind of support do I get?
-Gratisfaction is very easy and fast to set up. If you ever need assistance, we are here to support you. For any pre-sales or product inquiries, send us an email to sales@appsmav.com . Existing customers, please send email to support@appsmav.com 
+Gratisfaction is very easy and fast to set up. If you ever need assistance, we are here to support you. For any pre-sales or product inquiries, send us an email to sales@appsmav.com . Existing customers, please send email to support@appsmav.com
 
 = I have another question, what do I do?
-Contact us Anytime! For any pre-sales or product inquiries, send us an email to sales@appsmav.com . Customers, please send email to support@appsmav.com 
+Contact us Anytime! For any pre-sales or product inquiries, send us an email to sales@appsmav.com . Customers, please send email to support@appsmav.com
 
 
 == Screenshots ==
 
-1. 
-2. 
-3. 
-4. 
-5. 
-6. 
-7. 
-8. 
-9. 
-10. 
-11. 
-12. 
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+11.
+12.
 
 
 == Changelog ==
+= 4.5.1 =
+WordPress version 6.8 release compatibility
+
 = 4.5.0 =
 Enhanced security and improved performance
 
@@ -410,7 +413,7 @@ Improvements and bug fixes
 Bug Fixes - Redeem points priority issue fix
 
 = 3.9.1 =
-Referral improvements added 
+Referral improvements added
 
 = 3.9.0 =
 New Feature - Multiple widget options added
@@ -511,7 +514,7 @@ Improvements API and Session management
 Improvements and bug fixes
 
 = 2.4.1 =
-WordPress version 5.0 release compatibility 
+WordPress version 5.0 release compatibility
 
 = 2.4.0 =
 Tax related issue fixes
@@ -612,5 +615,5 @@ This version have register shop feature with GR site.
 
 
 == Upgrade Notice ==
-= 4.5.0 =
-Enhanced security and improved performance
+= 4.5.1 =
+WordPress version 6.8 release compatibility

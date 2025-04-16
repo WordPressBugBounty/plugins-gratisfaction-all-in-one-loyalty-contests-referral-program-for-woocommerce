@@ -2,13 +2,13 @@
 
 /**
  * @package Gratisfaction Connect
- * @version 4.5.0
+ * @version 4.5.1
  */
 /*
   Plugin Name: Gratisfaction- Loyalty Rewards Referral Birthday and Giveaway Program
   Plugin URI: http://appsmav.com
   Description: Loyalty + Referral + Rewards + Birthdays and Anniversaries + Giveaways + Sweepstakes.
-  Version: 4.5.0
+  Version: 4.5.1
   Author: Appsmav
   Author URI: http://appsmav.com
   License: GPL2
@@ -38,7 +38,7 @@ if(!class_exists('GR_Connect'))
         const ENDPOINT = 'gr-loyalty';
         const REDEEM_COUPON = 'GRPAYPOINTS';
 
-        public static $_plugin_version  = '4.5.0';
+        public static $_plugin_version  = '4.5.1';
         public static $_callback_url = 'https://gratisfaction.appsmav.com/';
         public static $_api_version  = 'newapi/v2/';
         protected static $_api_url   = 'https://clients.appsmav.com/api_v1.php';
