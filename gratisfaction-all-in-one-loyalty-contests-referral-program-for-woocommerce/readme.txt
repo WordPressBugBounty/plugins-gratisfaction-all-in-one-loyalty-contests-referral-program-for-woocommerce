@@ -1,6 +1,6 @@
 ﻿=== Gratisfaction- Loyalty, Rewards , Referral, Birthday and Giveaway Program ===
 Contributors: akashmalik
-Tags: giveaways, contest, loyalty, points, easter
+Tags: giveaways, contest, loyalty, points, mother's day
 Donate link: https://appsmav.com
 Requires at least: 3.0.1
 Tested up to: 6.8
